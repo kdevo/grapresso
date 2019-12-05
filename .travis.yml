@@ -1,0 +1,37 @@
+language: python
+
+# Supported Python versions
+python:
+  # CPython versions
+  - "3.5"
+  - "3.6"
+  # PyPy versions
+  - "pypy3.5"
+
+# Dependency installation
+install:
+  - pip install -r requirements.txt
+
+script: pytest
+
+jobs:
+  include:
+    - stage: integration
+      name: Integration tests
+      script: .travis/integration-tests.sh
+
+# Notifications
+#notifications:
+#  email:
+#    recipients:
+#    on_success: change
+#    on_failure: change
+
+# Git-related settings
+git:
+  depth: 5
+branches:
+  only:
+    - master
+    - dev
+    - /^deploy.*$/

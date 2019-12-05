@@ -1,0 +1,26 @@
+import pytest
+
+
+class TestBackend:
+    """ Test the backends that implement the API.
+
+    TODO(kdveo): Provide (more) meaningful tests.
+    """
+
+    def test_construction(self, create_backend):
+        backend = create_backend()
+        backend.add_node(1)
+        backend.add_node(2)
+        assert 1 in backend.node_names() and 2 in backend.node_names()
+
+        backend.add_edge(1, 2, True, cost=12)
+        assert backend[1].edge(backend[2]).cost == 12
+        assert backend[2].edge(backend[1]).cost == 12
+
+        backend.add_node(3)
+        backend.add_node(4)
+        backend.add_edge(3, 4, cost=1, capacity=10)
+        edge = backend[3].edge(backend[4])
+        assert edge.cost == 1 and edge.capacity == 10
+        with pytest.raises(KeyError):
+            edge = backend[4].edge(backend[3])
