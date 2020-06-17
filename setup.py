@@ -23,7 +23,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 setup(
     name='grapresso',
-    version='0.0.1b0',
+    version='0.0.1b1',
     packages=find_packages(exclude=["tests", "tests.*"]),
     url=REPO_URL,
     license='GPL-3.0',
