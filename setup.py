@@ -15,7 +15,7 @@ setup(
     license='GPL-3.0',
     # setup_requires=[],
     # install_requires=[],
-    # tests_require=["pytest>=5.0.0,<6.0.0"],
+    tests_require=["pytest>=5.0.0,<6.0.0"],
     zip_safe=True,
     python_requires=">=3.5",
 
@@ -31,5 +31,5 @@ setup(
         "Download ZIP": "https://api.github.com/repos/kdevo/grapresso/zipball"
     },
     long_description=markdown_description,
-    long_description_content_type='text/markup'
+    long_description_content_type='text/markdown'
 )
