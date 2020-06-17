@@ -1,11 +1,25 @@
 from setuptools import setup, find_packages
 from os import path
+import os
+import re
 
 REPO_URL = "https://github.com/kdevo/grapresso"
 
 with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as readme:
-    markdown_description = readme.read()
-    # TODO(kdevo): Auto-replace relative links
+    md_description = readme.read()
+    files = os.listdir(path.abspath(path.dirname(__file__)))
+    print('|'.join(files))
+    def replace_rel(matchobj):
+        rel_url = matchobj.group(1)
+        if rel_url.startswith('/'):
+            rel_url = rel_url[1:]
+        abs_url = f"{REPO_URL}/{rel_url}"
+        print(f"Replace {rel_url} with {abs_url}.")
+        return f"({abs_url})"
+    (processed_md_description, num) = re.subn(fr"\[.*\]\((/?({'|'.join(files)}).*)\)", replace_rel, md_description,
+                                              flags=re.IGNORECASE)
+    print(f"Replaced {num} occurrences of relative links from README.md.")
+
 
 setup(
     name='grapresso',
@@ -30,6 +44,6 @@ setup(
         "Source Code": "https://github.com/kdevo/grapresso",
         "Download ZIP": "https://api.github.com/repos/kdevo/grapresso/zipball"
     },
-    long_description=markdown_description,
+    long_description=processed_md_description,
     long_description_content_type='text/markdown'
 )

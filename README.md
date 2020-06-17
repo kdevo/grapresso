@@ -1,5 +1,5 @@
 <a href="https://git.io/grapresso" target="_blank">
-    <img alt="Grapresso Logo" src=".github/logo.png" width="512" width="64">
+    <img alt="Grapresso Logo" src="https://github.com/kdevo/grapresso/blob/master/.github/logo.png" width="512" width="64">
 </a>
 <a href="https://travis-ci.org/kdevo/grapresso" target="_blank">
     <img align="right" alt="Travis CI Build Status" src="https://travis-ci.org/kdevo/grapresso.svg?branch=master">
