@@ -13,7 +13,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
         rel_url = matchobj.group(2)
         if rel_url.startswith('/'):
             rel_url = rel_url[1:]
-        abs_url = f"{REPO_URL}/{rel_url}"
+        abs_url = f"{REPO_URL}/tree/master/{rel_url}"
         print(f"Replace '{rel_url}' with '{abs_url}'.")
         return f"{matchobj.group(1)}({abs_url})"
     (processed_md_description, num) = re.subn(fr"(\[.*\])\((/?({'|'.join(files)}).*)\)", replace_rel, md_description,
@@ -24,7 +24,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 setup(
     name='grapresso',
-    version='0.0.1b2',
+    version='0.0.1b3',
     packages=find_packages(exclude=["tests", "tests.*"]),
     url=REPO_URL,
     license='GPL-3.0',
