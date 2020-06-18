@@ -1,8 +1,7 @@
+import math
 from collections import deque
 from heapq import heappush, heappop
-from typing import Optional, Iterable, Set
-
-import math
+from typing import Optional, Set, Union
 
 from .api import Graph, BellmanFordResult, DistanceTable, DistanceEntry, MstResult
 from ..backend.api import DataBackend
@@ -20,8 +19,17 @@ class DirectedGraph(Graph):
         else:
             self._nodes_data = data_backend
 
+    @property
+    def backend(self) -> DataBackend:
+        """This property offers direct backend access. Use with care.
+        In the long term, this property needs to be made redundant by offering direct Graph API methods as abstraction.
 
-    def __getitem__(self, item):
+        Returns: Backend that has been used during initialisation.
+
+        """
+        return self._nodes_data
+
+    def __getitem__(self, item) -> Union[Node, Optional[Edge]]:
         if isinstance(item, tuple) and len(item) == 2:
             return self.edge(item[0], item[1])
         else:
@@ -38,7 +46,7 @@ class DirectedGraph(Graph):
         """
         return next(iter(self._nodes_data)) if start_node_name is None else self._nodes_data[start_node_name]
 
-    def free_node_name(self, wished_name: str = "Node"):
+    def free_node_name(self, wished_name: str = "Node") -> str:
         """Returns a free node name based on wished_name using a numeric suffix.
 
         Args:
@@ -47,6 +55,7 @@ class DirectedGraph(Graph):
         Returns:
             wished_name [+ suffix_no]
         """
+
         def new_name(start_name, suffix_no):
             return start_name + str(suffix_no)
 
@@ -60,7 +69,7 @@ class DirectedGraph(Graph):
                 wished_name = new_name(wished_name, count)
             return wished_name
 
-    def add_edge(self, from_node_name, to_node_name, **attributes):
+    def add_edge(self, from_node_name, to_node_name, **attributes) -> 'Graph':
         if from_node_name not in self._nodes_data:
             self.add_node(from_node_name)
         if to_node_name not in self._nodes_data:
@@ -68,8 +77,9 @@ class DirectedGraph(Graph):
         self._nodes_data.add_edge(from_node_name, to_node_name, **attributes)
         return self
 
-    def add_node(self, node_name, **attributes):
+    def add_node(self, node_name, **attributes) -> 'Graph':
         self._nodes_data.add_node(node_name, **attributes)
+        return self
 
     def remove_node(self, node):
         raise NotImplementedError()
@@ -135,7 +145,7 @@ class DirectedGraph(Graph):
         )
         return MstResult(costs, initialized_graph)
 
-    def perform_prim(self, start_node_name=None, on_new_edge_cb: callable = None):
+    def perform_prim(self, start_node_name=None, on_new_edge_cb: callable = None) -> int:
         to_visit = set(self._nodes_data)
         current_node = self[start_node_name]
 
@@ -299,7 +309,7 @@ class DirectedGraph(Graph):
                 flow.augment_along_path(augmenting_path, res_edge_to_orig)
         return flow
 
-    def perform_cycle_cancelling(self):
+    def perform_cycle_cancelling(self) -> Flow:
         # Create a virtual SUPER-SOURCE s and SUPER-TARGET t
         s_name, t_name = self.free_node_name("SUPER-SOURCE"), self.free_node_name("SUPER-TARGET")
         s_out_flow, t_in_flow = 0, 0
@@ -347,7 +357,7 @@ class DirectedGraph(Graph):
                 # If we cannot find a negative cycle anymore, we found an optimal solution:
                 return flow
 
-    def perform_successive_shortest_path(self):
+    def perform_successive_shortest_path(self) -> Flow:
         pseudo_balances = {}
 
         def pseudo_balances_satisfied():
@@ -529,4 +539,3 @@ class UndirectedGraph(DirectedGraph):
             if e.from_node.name in node_names_a and e.to_node.name in node_names_b:
                 matched_edges.append(self.edge(e.from_node.name, e.to_node.name))
         return matched_edges
-

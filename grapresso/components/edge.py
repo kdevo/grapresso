@@ -1,5 +1,5 @@
 class OutgoingConnection:
-    def __init__(self, to_node, cost=None, capacity=None):
+    def __init__(self, to_node, cost=None, capacity=None, **kwargs):
         self._to_node = to_node
         self._cost = cost
         self._capacity = capacity
@@ -31,13 +31,18 @@ class OutgoingConnection:
 
 
 class Edge(OutgoingConnection):
-    def __init__(self, from_node, to_node, cost=None, capacity=None):
+    def __init__(self, from_node, to_node, cost=None, capacity=None, data=None):
         super().__init__(to_node, cost, capacity)
         self._from_node = from_node
+        self._data = data
 
     @property
     def from_node(self):
         return self._from_node
+
+    @property
+    def additional_data(self):
+        return self._data
 
     def inverse(self):
         return Edge(self._to_node, self._from_node, self._cost, self._capacity)
@@ -53,7 +58,7 @@ class Edge(OutgoingConnection):
 
     # TODO(kdevo): Revise if the following is really necessary:
     def __key(self):
-        return self._from_node, self._to_node, self._cost, self._capacity
+        return self._from_node, self._to_node
 
     def __hash__(self):
         return hash(self.__key())

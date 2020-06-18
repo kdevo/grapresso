@@ -1,10 +1,11 @@
-from typing import Iterable
+from typing import Iterable, Hashable
 
+from ..components.edge import Edge
 from ..components.node import Node
 
 
 class DataBackend:
-    def __getitem__(self, node_name) -> Node:
+    def __getitem__(self, node_name: Hashable) -> Node:
         """Get a node by node id.
         Implementations should try to guarantee O(1) access.
 
@@ -17,7 +18,7 @@ class DataBackend:
         """
         raise NotImplementedError()
 
-    def __contains__(self, node_name):
+    def __contains__(self, node_name: Hashable) -> bool:
         """Check if a specific node_name is in the data structure.
         Implementations should try to guarantee O(1) access.
 
@@ -29,7 +30,7 @@ class DataBackend:
         """
         raise NotImplementedError()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[Node]:
         """Get an iterator that can be used to iterate through the data structure's node objects.
 
         Returns:
@@ -45,7 +46,7 @@ class DataBackend:
         """
         raise NotImplementedError()
 
-    def add_node(self, node_name, **attributes):
+    def add_node(self, node_name: Hashable, **attributes) -> None:
         """Add a node_name.
         This variable can be anything that properly implements __hash__ and therewith __eq__).
         Use a str or an int if you want to keep things simple.
@@ -58,7 +59,8 @@ class DataBackend:
         """
         raise NotImplementedError()
 
-    def add_edge(self, from_node_name, to_node_name, symmetric: bool = False, **attributes):
+    def add_edge(self, from_node_name: Hashable,
+                 to_node_name: Hashable, symmetric: bool = False, **attributes) -> None:
         """Add an edge (from_node_name, to_node_name) = (x, y) with attributes to the graph.
         Per default, the edge is asymmetric/unidirectional (symmetric = False).
         For symmetric/bidirectional edges (x, y) = (y, x) implementations can consider to
@@ -75,10 +77,10 @@ class DataBackend:
         """
         raise NotImplementedError()
 
-    def remove_edge(self, from_node_name, to_node_name):
+    def remove_edge(self, from_node_name: Hashable, to_node_name: Hashable):
         raise NotImplementedError()
 
-    def remove_node(self, node_name):
+    def remove_node(self, node_name: Hashable):
         """Remove node with a specific node_name.
 
              Args:
@@ -86,7 +88,7 @@ class DataBackend:
         """
         raise NotImplementedError()
 
-    def node_names(self) -> Iterable:
+    def node_names(self) -> Iterable[Hashable]:
         """Get all stored node names.
 
         Returns:
@@ -94,7 +96,7 @@ class DataBackend:
         """
         raise NotImplementedError()
 
-    def edges(self) -> Iterable:
+    def edges(self) -> Iterable[Edge]:
         """Get all edges from all nodes.
         In some implementations, this iterable can already be pre-saved so that some algorithms will run faster.
 
