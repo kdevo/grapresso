@@ -21,6 +21,7 @@ jobs:
   include:
     - stage: integration
       name: Integration tests
+      python: "3.8"
       script: .travis/integration-tests.sh
 
 # Notifications
