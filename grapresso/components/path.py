@@ -3,8 +3,8 @@ from collections.abc import Iterable
 
 import math
 
-from .node import Node
-from .edge import Edge
+from grapresso.components.node import Node
+from grapresso.components.edge import Edge
 from ..datastruct.typing import Collection
 
 

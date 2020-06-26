@@ -1,7 +1,7 @@
 from typing import Iterable, Hashable
 
-from ..components.edge import Edge
-from ..components.node import Node
+from grapresso.components.edge import Edge
+from grapresso.components.node import Node
 
 
 class DataBackend:
@@ -46,7 +46,7 @@ class DataBackend:
         """
         raise NotImplementedError()
 
-    def add_node(self, node_name: Hashable, **attributes) -> None:
+    def add_node(self, node_name: Hashable, **attributes):
         """Add a node_name.
         This variable can be anything that properly implements __hash__ and therewith __eq__).
         Use a str or an int if you want to keep things simple.
@@ -60,7 +60,7 @@ class DataBackend:
         raise NotImplementedError()
 
     def add_edge(self, from_node_name: Hashable,
-                 to_node_name: Hashable, symmetric: bool = False, **attributes) -> None:
+                 to_node_name: Hashable, symmetric: bool = False, **attributes):
         """Add an edge (from_node_name, to_node_name) = (x, y) with attributes to the graph.
         Per default, the edge is asymmetric/unidirectional (symmetric = False).
         For symmetric/bidirectional edges (x, y) = (y, x) implementations can consider to

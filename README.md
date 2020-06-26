@@ -56,10 +56,11 @@ Algorithms are performed on a so called "backend" which wraps the graph's intern
 The API is defined in [backend/api.py](grapresso/backend/api.py). Therewith, backends can easily be added provided that they carefully implement the defined API.
 
 #### Implementations
-Implementation         | Type                           | Underlying data structure                   
----------------------- | ------------------------------- | -------------------------------
-[InMemoryBackend](/grapresso/backend/memory.py)           | In-Memory with Traits          | `{node_name: obj}`             
-[PickleFileBackend](/grapresso/backend/file.py)           | Pickle file-based              | Files with `${hash(obj)}.node` as filename
+Implementation                                           | Type                                                  | Underlying data structure                   
+-------------------------------------------------------- | ----------------------------------------------------- | -------------------------------
+[InMemoryBackend](/grapresso/backend/memory.py)          | In-Memory with Traits                                 | `{node_name: obj}` 
+[NetworkXBackend](/grapresso/backend/networkx.py)        | [NetworkX](https://networkx.github.io/) compatible    | nx.DiGraph with custom NetworkXNodes
+[PickleFileBackend](/grapresso/backend/file.py)          | Pickle file-based                                     | Files with `${hash(obj)}.node` as filename
 
 > :warning: Be careful, the `PickleFileBackend` is not properly tested and more of an experiment right now!
 

@@ -6,8 +6,8 @@ from typing import Optional, Set, Union
 from .api import Graph, BellmanFordResult, DistanceTable, DistanceEntry, MstResult
 from ..backend.api import DataBackend
 from ..backend.memory import InMemoryBackend
-from ..components.edge import Edge
-from ..components.node import Node
+from grapresso.components.edge import Edge
+from grapresso.components.node import Node
 from ..components.path import CircularTour, TourTracker, Path, Cycle, Flow
 from ..datastruct.disjointset import DefaultDisjointSet
 
@@ -20,7 +20,7 @@ class DirectedGraph(Graph):
             self._nodes_data = data_backend
 
     @property
-    def backend(self) -> DataBackend:
+    def nodes(self) -> DataBackend:
         """This property offers direct backend access. Use with care.
         In the long term, this property needs to be made redundant by offering direct Graph API methods as abstraction.
 
@@ -139,8 +139,10 @@ class DirectedGraph(Graph):
 
         return cost
 
-    def build_mst(self, initialized_graph) -> MstResult:
-        costs = {'kruskal': self.perform_kruskal, 'prim': self.perform_prim}[self._nodes_data.mst_alg_hint](
+    def build_mst(self, initialized_graph, preferred_algorithm=None) -> MstResult:
+        costs = {'kruskal': self.perform_kruskal, 'prim': self.perform_prim}[
+            preferred_algorithm if preferred_algorithm else self._nodes_data.mst_alg_hint
+        ](
             on_new_edge_cb=lambda e: initialized_graph.add_edge(e.from_node.name, e.to_node.name, cost=e.cost)
         )
         return MstResult(costs, initialized_graph)
@@ -444,7 +446,7 @@ class UndirectedGraph(DirectedGraph):
     def double_tree_tour(self, start_node_name=None):
         mst_result = self.build_mst(UndirectedGraph(InMemoryBackend()))
         visited_node_names = []
-        mst_result.mst.perform_dfs(start_node_name, on_visited_cb=lambda n: visited_node_names.append(n.name))
+        mst_result.tree.perform_dfs(start_node_name, on_visited_cb=lambda n: visited_node_names.append(n.name))
         with CircularTour(self[start_node_name]) as dt_tour:
             for i in range(0, len(visited_node_names) - 1):
                 for edge in self._nodes_data[visited_node_names[i]].edges:

@@ -3,8 +3,8 @@ from enum import Enum, unique
 from typing import Iterable
 
 from .api import DataBackend, NodeAlreadyExistsError, EdgeAlreadyExistsError
-from ..components.edge import Edge
-from ..components.node import Node, IndexedNode
+from grapresso.components.edge import Edge
+from grapresso.components.node import Node, IndexedNode
 
 
 @unique

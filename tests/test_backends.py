@@ -16,6 +16,9 @@ class TestBackend:
         backend.add_edge(1, 2, True, cost=12)
         assert backend[1].edge(backend[2]).cost == 12
         assert backend[2].edge(backend[1]).cost == 12
+        assert backend[1] in backend[2].neighbours
+        assert 2 in [e.to_node.name for e in backend[1].edges]
+        assert sum(1 for _ in backend.edges()) == 2
 
         backend.add_node(3)
         backend.add_node(4)
@@ -23,4 +26,6 @@ class TestBackend:
         edge = backend[3].edge(backend[4])
         assert edge.cost == 1 and edge.capacity == 10
         with pytest.raises(KeyError):
-            edge = backend[4].edge(backend[3])
+            _ = backend[4].edge(backend[3])
+
+        assert {1, 2, 3, 4} == {n.name for n in backend}

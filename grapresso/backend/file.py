@@ -1,13 +1,47 @@
 import itertools
-import json
 import os
 import pickle
 from abc import ABC
-from typing import Iterable
+from typing import Iterable, Sized
 
+from grapresso.components.edge import Edge
+from grapresso.components.node import Node
 from .api import DataBackend, NodeAlreadyExistsError, EdgeAlreadyExistsError
-from ..components.edge import OutgoingConnection, Edge
-from ..components.node import FileNode, Node
+
+
+class FileNode(Node):
+    def __init__(self, name, backend, balance=None):
+        """
+        Construct a node with a name holding a backend.
+
+        Args:
+            name: Name of the node (this is a unique ID)
+            backend: The backend parameter is needed to reconstruct actual edge objects
+        """
+        super().__init__(name, balance)
+        self._backend = backend
+
+    @property
+    def neighbours(self) -> Sized:
+        return [self._backend[e.to_node] for e in self._edges]
+
+    @property
+    def edges(self) -> Iterable[Edge]:
+        return [Edge(self._backend[self._name], self._backend[e.to_node], e.cost, e.capacity) for e in self._edges]
+
+    def __setstate__(self, state):
+        # Prevent _backend from being deserialized
+        self._name, self._balance, self._edges = state
+
+    def __getstate__(self):
+        # Prevent _backend from being serialized
+        return self._name, self._balance, self._edges
+
+    def edge(self, neighbour_node) -> Edge:
+        for edge in self.edges:
+            if edge.to_node == neighbour_node:
+                return edge
+        raise KeyError("There is no neighbour '{}' accessible from node {}!".format(neighbour_node, self))
 
 
 class DirectoryBasedFileBackend(DataBackend, ABC):
@@ -21,7 +55,7 @@ class DirectoryBasedFileBackend(DataBackend, ABC):
 
 
 class PickleFileBackend(DirectoryBasedFileBackend):
-    """FIXME(kdevo): This backend is highly inperformant and more a proof of work than production-ready."""
+    """FIXME(kdevo): This backend is highly inefficient and more a proof of work than production-ready."""
 
     def __getitem__(self, node_name) -> Node:
         with open(self._node_path(node_name), 'rb') as file:
@@ -68,4 +102,3 @@ class PickleFileBackend(DirectoryBasedFileBackend):
     @property
     def mst_alg_hint(self) -> str:
         return 'prim'
-

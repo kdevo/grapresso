@@ -1,7 +1,7 @@
 from typing import NamedTuple, Dict, Optional
 
 from .path import Cycle
-from .node import Node
+from grapresso.components.node import Node
 
 DistanceEntry = NamedTuple('DistanceEntry', [('parent', Optional[Node]), ('dist', float)])
 DistanceTable = Dict[Node, DistanceEntry]
@@ -25,4 +25,4 @@ class Graph:
     pass
 
 
-MstResult = NamedTuple('MstResult', [('costs', float), ('mst', Graph)])
+MstResult = NamedTuple('MstResult', [('costs', float), ('tree', 'DirectedGraph')])
