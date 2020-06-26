@@ -3,14 +3,17 @@ language: python
 # Supported Python versions
 python:
   # CPython versions
-  - "3.5"
   - "3.6"
+  - "3.7"
+  - "3.8"
   # PyPy versions
   - "pypy3"
 
 # Dependency installation
 install:
-  - pip install "pytest>=5.0.0,<6.0.0"
+  - pip install .
+  - pip install .[test]
+  - pip install .[backend-networkx]
 
 script: pytest
 

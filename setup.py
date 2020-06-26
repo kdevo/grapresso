@@ -9,6 +9,8 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
     md_description = readme.read()
     files = os.listdir(path.abspath(path.dirname(__file__)))
     print('|'.join(files))
+
+
     def replace_rel(matchobj):
         rel_url = matchobj.group(2)
         if rel_url.startswith('/'):
@@ -16,23 +18,25 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
         abs_url = f"{REPO_URL}/tree/master/{rel_url}"
         print(f"Replace '{rel_url}' with '{abs_url}'.")
         return f"{matchobj.group(1)}({abs_url})"
+
+
     (processed_md_description, num) = re.subn(fr"(\[.*\])\((/?({'|'.join(files)}).*)\)", replace_rel, md_description,
                                               flags=re.IGNORECASE)
     print(f"Replaced {num} occurrences of relative links from README.md.")
     print(processed_md_description)
 
-
 setup(
     name='grapresso',
-    version='0.0.1',
+    version='0.1.0',
     packages=find_packages(exclude=["tests", "tests.*"]),
     url=REPO_URL,
     license='GPL-3.0',
-    # setup_requires=[],
-    # install_requires=[],
-    tests_require=["pytest>=5.0.0,<6.0.0"],
+    extras_require={
+        'backend-networkx': ["networkx==2.4.0"],
+        'test': ["pytest>=5.0.0,<6.0.0"]
+    },
     zip_safe=True,
-    python_requires=">=3.5",
+    python_requires=">=3.6",
 
     # Metadata for PyPI
     author='kdevo',
