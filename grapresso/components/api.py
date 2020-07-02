@@ -21,8 +21,4 @@ class BellmanFordResult:
         return {v for v in self.dist_table}
 
 
-class Graph:
-    pass
-
-
-MstResult = NamedTuple('MstResult', [('costs', float), ('tree', 'DirectedGraph')])
+MstResult = NamedTuple('MstResult', [('costs', float), ('tree', 'DiGraph')])

@@ -4,11 +4,13 @@ from .edge import Edge
 
 
 class Node:
-    def __init__(self, name, balance=0):
+    def __init__(self, name, balance: float = 0, **kwargs):
         """Constructs a node with a name."""
         self._edges = []
         self._name = name
         self._balance = balance
+        for field_name, value in kwargs.items():
+            self.__setattr__(field_name, value)
 
     @property
     def name(self) -> Hashable:
@@ -22,8 +24,11 @@ class Node:
     def neighbours(self) -> Iterable['Node']:
         return [edge.other_node_than(self) for edge in self._edges]
 
-    def add_edge(self, edge):
+    def connect(self, edge):
         self._edges.append(edge)
+        # TODO(kdevo): Refactor this to 'Connection' class so that this check is not necessary
+        if edge.from_node != self and edge.to_node != self:
+            raise ValueError()
 
     @property
     def edges(self) -> Iterable[Edge]:
@@ -39,19 +44,20 @@ class Node:
         for edge in self.edges:
             if edge.to_node == neighbour_node:
                 return edge
-        raise KeyError("There is no neighbour '{}' accessible from node {}!".format(neighbour_node, self))
+        raise KeyError(f"There is no neighbour {neighbour_node} accessible from node {self}")
 
     def __str__(self):
-        return "Node '{}'".format(self._name)
+        return f"Node {self._name}"
 
     def __repr__(self):
-        return "Node '{}'".format(self._name)
+        return f"Node '{self._name}'"
 
     def __hash__(self):
         return hash(self._name)
 
     def __eq__(self, other):
-        return isinstance(self, type(other)) and self.name == other.name
+        return (isinstance(self, type(other)) and self.name == other.name) \
+               or isinstance(other, Hashable) and self.name == other
 
     def __lt__(self, other):
         return self.name < other.name
@@ -62,11 +68,11 @@ class Node:
 
     @property
     def is_source(self) -> bool:
-        return self._balance > 0.0
+        return self.balance > 0.0
 
     @property
     def is_sink(self) -> bool:
-        return self._balance < 0.0
+        return self.balance < 0.0
 
 
 class IndexedNode(Node):
@@ -80,15 +86,15 @@ class IndexedNode(Node):
         super().__init__(name, balance)
         self._indexed_edges = {}
 
-    def add_edge(self, edge: Edge):
-        super().add_edge(edge)
+    def connect(self, edge: Edge):
+        super().connect(edge)
         self._indexed_edges[edge.other_node_than(self)] = edge
 
     def edge(self, neighbour_node: Node) -> Edge:
         try:
             return self._indexed_edges[neighbour_node]
         except KeyError:
-            raise KeyError("There is no neighbour '{}' accessible from node '{}'!".format(neighbour_node, self))
+            raise KeyError(f"There is no neighbour '{neighbour_node}' accessible from node '{self}'!")
 
     @property
     def neighbours(self) -> Iterable[Node]:

@@ -1,15 +1,14 @@
-from collections import defaultdict, deque
-from collections.abc import Iterable
+from collections import defaultdict, deque, Hashable
 
 import math
+from typing import Dict, Iterable
 
 from grapresso.components.node import Node
 from grapresso.components.edge import Edge
-from ..datastruct.typing import Collection
 
 
 class Path:
-    def __init__(self, source_node, target_node):
+    def __init__(self, source_node: Hashable, target_node: Hashable):
         self._source_node = source_node
         self._target_node = target_node
 
@@ -28,11 +27,11 @@ class Path:
         self._cost += edge.cost
         self._min_capacity = min(self._min_capacity, edge.capacity)
         self._visited.add(edge.from_node)
-        # TODO(kdevo): Revise if incrementing hash like is sufficient:
+        # TODO(kdevo): Revise if incrementing hash like this is sufficient:
         self._incremental_hash += hash((edge.from_node, edge.to_node)) + hash((edge.to_node, edge.from_node))
         return self
 
-    def run(self, edges: Collection):
+    def run(self, edges: Iterable):
         for e in edges:
             self.go(e)
         return self
@@ -128,7 +127,7 @@ class Cycle(CircularTour):
 
 
 class TourTracker:
-    def __init__(self, only_store_cheapest=True):
+    def __init__(self, only_store_cheapest: bool = True):
         self._cheapest_tour = None
         self._only_store_cheapest = only_store_cheapest
         self._all = set()
@@ -140,7 +139,7 @@ class TourTracker:
             self._all.add(tour)
 
     @property
-    def all_tours(self) -> Iterable:
+    def all_tours(self) -> Iterable[Path]:
         return {self._cheapest_tour} if self._only_store_cheapest else self._all
 
     @property
@@ -149,7 +148,7 @@ class TourTracker:
 
 
 class Flow:
-    def __init__(self, initialize_dict: {} = None):
+    def __init__(self, initialize_dict: Dict[Edge, float] = None):
         self._edge_to_flow = defaultdict(float)
         self._cost = 0
         self._max_flow = None
@@ -157,7 +156,7 @@ class Flow:
             for (e, f) in initialize_dict.items():
                 self.set(e, f)
 
-    def set(self, edge, flow):
+    def set(self, edge: Edge, flow: float):
         if 0 <= flow <= edge.capacity:
             flow_diff = flow - self._edge_to_flow[edge]
             self._cost += flow_diff * edge.cost
@@ -165,31 +164,31 @@ class Flow:
         else:
             raise ValueError("Flow must be between 0 and capacity {}!".format(edge.capacity))
 
-    def increase(self, edge, flow):
+    def increase(self, edge: Edge, flow: float):
         self.set(edge, self._edge_to_flow[edge] + flow)
 
-    def decrease(self, edge, flow):
+    def decrease(self, edge: Edge, flow: float):
         self.set(edge, self._edge_to_flow[edge] - flow)
 
     @property
-    def cost(self):
+    def cost(self) -> float:
         return self._cost
 
     @property
-    def max_flow(self):
+    def max_flow(self) -> float:
         return self._max_flow
 
     @max_flow.setter
-    def max_flow(self, value):
+    def max_flow(self, value: float):
         self._max_flow = value
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: Hashable):
         return self._edge_to_flow[item]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: Edge, value: float):
         self.set(key, value)
 
-    def edges(self):
+    def edges(self) -> Iterable[Edge]:
         return [e for e in self._edge_to_flow if self._edge_to_flow[e] > 0]
 
     def augment_along_path(self, full_st_path: Path, res_edge_info: {}):
@@ -199,7 +198,7 @@ class Flow:
             self._max_flow += full_st_path.min_capacity
         self.modify_along_path(full_st_path, res_edge_info, full_st_path.min_capacity)
 
-    def modify_along_path(self, path_part: Path, res_edge_info: {}, gamma):
+    def modify_along_path(self, path_part: Path, res_edge_info: {}, gamma: float):
         for res_edge in path_part:
             orig_edge = res_edge_info[res_edge][0]
             is_forward_edge = res_edge_info[res_edge][1]

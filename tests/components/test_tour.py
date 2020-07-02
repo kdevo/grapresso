@@ -1,11 +1,11 @@
 from grapresso.backend.memory import InMemoryBackend
-from grapresso.components.graph import DirectedGraph
+from grapresso.components.graph import DiGraph
 from grapresso.components.path import CircularTour
 
 
 class TestTour:
     def test_tour(self):
-        g = DirectedGraph(InMemoryBackend()) \
+        g = DiGraph(InMemoryBackend()) \
             .add_edge(1, 2) \
             .add_edge(1, 2) \
             .add_edge(2, 3) \

@@ -1,1 +1,1 @@
-from .components.graph import DirectedGraph, UndirectedGraph
+from .components.graph import DiGraph, BiGraph

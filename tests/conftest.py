@@ -1,20 +1,21 @@
 import pytest
 
-from grapresso.backend.file import PickleFileBackend
 from grapresso.backend.memory import InMemoryBackend, Trait
 from grapresso.backend.networkx import NetworkXBackend
 
-ALL_BACKENDS = ('InMemory-OptimizeMemory', 'InMemory-OptimizePerformance', 'NetworkXBackend', 'PickleFile')
+ALL_BACKENDS = ('InMemory-OptimizeMemory', 'InMemory-OptimizePerformance', 'NetworkXBackend',)
 ENABLED_BACKENDS = ALL_BACKENDS
 
 
 @pytest.fixture(params=ENABLED_BACKENDS)
 def create_backend(request, tmp_path):
     def _create_backend():
-        return {'InMemory-OptimizeMemory': InMemoryBackend(Trait.OPTIMIZE_MEMORY),
-                'InMemory-OptimizePerformance': InMemoryBackend(Trait.OPTIMIZE_PERFORMANCE),
-                'NetworkXBackend': NetworkXBackend(),
-                'PickleFile': PickleFileBackend(str(tmp_path))}[request.param]
+        return {
+            ALL_BACKENDS[0]: InMemoryBackend(Trait.OPTIMIZE_MEMORY),
+            ALL_BACKENDS[1]: InMemoryBackend(Trait.OPTIMIZE_PERFORMANCE),
+            ALL_BACKENDS[2]: NetworkXBackend(),
+            # 'PickleFile': PickleFileBackend(str(tmp_path))
+        }[request.param]
 
     return _create_backend
 
@@ -26,10 +27,3 @@ def create_graph(importer, create_backend):
 
     return _graph
 
-# @pytest.fixture(autouse=True, scope="class")
-# def reset_backends_to_use():
-#     global test_backends
-#     print("Backends to use for testing are: ", test_backends)
-#     yield
-#     test_backends = ALL_BACKENDS
-#     print("Reset backends to default: ", test_backends)

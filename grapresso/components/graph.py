@@ -3,7 +3,7 @@ from collections import deque
 from heapq import heappush, heappop
 from typing import Optional, Set, Union
 
-from .api import Graph, BellmanFordResult, DistanceTable, DistanceEntry, MstResult
+from .api import BellmanFordResult, DistanceTable, DistanceEntry, MstResult
 from ..backend.api import DataBackend
 from ..backend.memory import InMemoryBackend
 from grapresso.components.edge import Edge
@@ -12,7 +12,7 @@ from ..components.path import CircularTour, TourTracker, Path, Cycle, Flow
 from ..datastruct.disjointset import DefaultDisjointSet
 
 
-class DirectedGraph(Graph):
+class DiGraph:
     def __init__(self, data_backend: DataBackend = None):
         if data_backend is None:
             self._nodes_data = InMemoryBackend()
@@ -20,7 +20,7 @@ class DirectedGraph(Graph):
             self._nodes_data = data_backend
 
     @property
-    def nodes(self) -> DataBackend:
+    def backend(self) -> DataBackend:
         """This property offers direct backend access. Use with care.
         In the long term, this property needs to be made redundant by offering direct Graph API methods as abstraction.
 
@@ -69,7 +69,7 @@ class DirectedGraph(Graph):
                 wished_name = new_name(wished_name, count)
             return wished_name
 
-    def add_edge(self, from_node_name, to_node_name, **attributes) -> 'Graph':
+    def add_edge(self, from_node_name, to_node_name, **attributes):
         if from_node_name not in self._nodes_data:
             self.add_node(from_node_name)
         if to_node_name not in self._nodes_data:
@@ -77,17 +77,16 @@ class DirectedGraph(Graph):
         self._nodes_data.add_edge(from_node_name, to_node_name, **attributes)
         return self
 
-    def add_node(self, node_name, **attributes) -> 'Graph':
+    def add_node(self, node_name, **attributes):
         self._nodes_data.add_node(node_name, **attributes)
         return self
 
-    def remove_node(self, node):
-        raise NotImplementedError()
-        pass
+    def remove_node(self, node_name):
+        self._nodes_data.remove_node(node_name)
 
     def edge(self, from_node_name, to_node_name) -> Optional[Edge]:
         try:
-            return self._nodes_data[from_node_name].edge(self._nodes_data[to_node_name])
+            return self[from_node_name].edge(self._nodes_data[to_node_name])
         except KeyError:
             return None
 
@@ -124,7 +123,7 @@ class DirectedGraph(Graph):
                 on_visited_cb(current_node)
         return seen
 
-    def perform_kruskal(self, on_new_edge_cb: callable = None):
+    def perform_kruskal(self, on_new_edge_cb: callable = None) -> float:
         dj_set = DefaultDisjointSet(self._nodes_data)
 
         cost = 0
@@ -250,7 +249,7 @@ class DirectedGraph(Graph):
     def __sizeof__(self):
         return self._nodes_data.__sizeof__()
 
-    def build_residual_graph(self, initialized_residual_graph: 'DirectedGraph', flow: Flow):
+    def build_residual_graph(self, initialized_residual_graph: 'DiGraph', flow: Flow):
         edge_info = {}
 
         for edge in self._nodes_data.edges():
@@ -301,7 +300,7 @@ class DirectedGraph(Graph):
 
         while path_in_resgraph_exists:
             # Calculate G' and u':
-            res_graph, res_edge_to_orig = self.build_residual_graph(DirectedGraph(InMemoryBackend()), flow)
+            res_graph, res_edge_to_orig = self.build_residual_graph(DiGraph(InMemoryBackend()), flow)
             # Find (s,t)-path p ∈ G' and also therewith determine γ = min(u'(e)) with e ∈ p:
             augmenting_path = res_graph.shortest_path(source_node_name, target_node_name)
             if augmenting_path is None:
@@ -339,7 +338,7 @@ class DirectedGraph(Graph):
         # Now that we have a valid b-flow, we can start the iterations until no cost-negative cycle is found anymore:
         while True:
             # Calculate G', u', c':
-            res_graph, res_edge_to_orig = self.build_residual_graph(DirectedGraph(InMemoryBackend()), flow)
+            res_graph, res_edge_to_orig = self.build_residual_graph(DiGraph(InMemoryBackend()), flow)
 
             # We can also find negative cycles when the graph's connected component is bigger than 1.
             # That is why we need to test if there is a negative cycle from all start nodes:
@@ -384,7 +383,7 @@ class DirectedGraph(Graph):
 
         while not pseudo_balances_satisfied():
             # Calc residual graph G', we need it when checking if the target is accessible from the source:
-            res_graph, res_edge_to_orig = self.build_residual_graph(DirectedGraph(InMemoryBackend()), flow)
+            res_graph, res_edge_to_orig = self.build_residual_graph(DiGraph(InMemoryBackend()), flow)
 
             try:
                 # Find a pseudo source s, where we need to saturate the outflow in G':
@@ -414,7 +413,7 @@ class DirectedGraph(Graph):
         return flow
 
 
-class UndirectedGraph(DirectedGraph):
+class BiGraph(DiGraph):
     def add_edge(self, a, b, **kwargs):
         if a not in self._nodes_data:
             self.add_node(a)
@@ -444,7 +443,7 @@ class UndirectedGraph(DirectedGraph):
         return nn_tour
 
     def double_tree_tour(self, start_node_name=None):
-        mst_result = self.build_mst(UndirectedGraph(InMemoryBackend()))
+        mst_result = self.build_mst(BiGraph(InMemoryBackend()))
         visited_node_names = []
         mst_result.tree.perform_dfs(start_node_name, on_visited_cb=lambda n: visited_node_names.append(n.name))
         with CircularTour(self[start_node_name]) as dt_tour:
@@ -522,7 +521,7 @@ class UndirectedGraph(DirectedGraph):
 
     def max_matchings(self, node_names_a: Set, node_names_b: Set):
         # Create a directed graph
-        directed_graph = DirectedGraph(InMemoryBackend())
+        directed_graph = DiGraph(InMemoryBackend())
         for edge in self._nodes_data.edges():
             if edge.from_node.name in node_names_a and edge.to_node.name in node_names_b:
                 directed_graph.add_edge(edge.from_node.name, edge.to_node.name, capacity=1)

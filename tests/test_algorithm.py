@@ -1,13 +1,13 @@
 import math
 
-from grapresso import DirectedGraph, UndirectedGraph
+from grapresso import DiGraph, BiGraph
 from grapresso.backend.memory import InMemoryBackend
 from grapresso.components.path import Flow
 
 
 class TestAlgorithm:
     def test_breadth_search(self, create_backend):
-        g = DirectedGraph(create_backend()) \
+        g = DiGraph(create_backend()) \
             .add_edge(1, 2) \
             .add_edge(1, 2) \
             .add_edge(2, 3) \
@@ -17,7 +17,7 @@ class TestAlgorithm:
         assert 1 in visited and 2 in visited and 3 in visited and 4 not in visited
 
     def test_depth_search(self, create_backend):
-        g = DirectedGraph(create_backend()) \
+        g = DiGraph(create_backend()) \
             .add_edge(1, 2) \
             .add_edge(1, 2) \
             .add_edge(2, 3) \
@@ -27,7 +27,7 @@ class TestAlgorithm:
         assert 1 in visited and 2 in visited and 3 in visited and 4 not in visited
 
     def test_depth_vs_breath_search(self, create_backend):
-        g = DirectedGraph(create_backend()) \
+        g = DiGraph(create_backend()) \
             .add_edge("a", "b") \
             .add_edge("a", "c") \
             .add_edge("c", "d") \
@@ -44,7 +44,7 @@ class TestAlgorithm:
         assert l1 != l2
 
     def test_full_enumeration(self, create_backend):
-        g = UndirectedGraph(create_backend()) \
+        g = BiGraph(create_backend()) \
             .add_edge("Aachen", "Amsterdam", cost=230) \
             .add_edge("Amsterdam", "Brussels", cost=200) \
             .add_edge("Brussels", "Aachen", cost=142)
@@ -68,7 +68,7 @@ class TestAlgorithm:
         assert len(tours.all_tours) == math.factorial(len(g._nodes_data) - 1) * 0.5
 
     def test_shortest_tour(self, create_backend):
-        g = UndirectedGraph(create_backend()) \
+        g = BiGraph(create_backend()) \
             .add_edge("Aachen", "Amsterdam", cost=230) \
             .add_edge("Amsterdam", "Brussels", cost=200) \
             .add_edge("Brussels", "Aachen", cost=142)
@@ -84,18 +84,18 @@ class TestAlgorithm:
         print(tour)
 
     def test_residual(self, create_backend):
-        graph = DirectedGraph(create_backend()) \
+        graph = DiGraph(create_backend()) \
             .add_edge("Aachen", "Amsterdam", cost=230, capacity=100) \
             .add_edge("Amsterdam", "Brussels", cost=200, capacity=60) \
             .add_edge("Brussels", "Aachen", cost=142, capacity=50)
 
-        res_graph, edges_info = graph.build_residual_graph(DirectedGraph(InMemoryBackend()),
+        res_graph, edges_info = graph.build_residual_graph(DiGraph(InMemoryBackend()),
                                                            Flow({graph.edge("Aachen", "Amsterdam"): 55}))
         assert res_graph.edge("Aachen", "Amsterdam").capacity == 45
         assert res_graph.edge("Amsterdam", "Aachen").capacity == 55
 
     def test_get_edge(self, create_backend):
-        graph = UndirectedGraph(create_backend()) \
+        graph = BiGraph(create_backend()) \
             .add_edge("Aachen", "Amsterdam", cost=230, capacity=100) \
             .add_edge("Amsterdam", "Brussels", cost=200, capacity=60) \
             .add_edge("Brussels", "Aachen", cost=142, capacity=50)

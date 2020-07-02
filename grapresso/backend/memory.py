@@ -1,9 +1,9 @@
 import itertools
 from enum import Enum, unique
-from typing import Iterable
+from typing import Iterable, Any, Hashable
 
 from .api import DataBackend, NodeAlreadyExistsError, EdgeAlreadyExistsError
-from grapresso.components.edge import Edge
+from grapresso.components.edge import DefaultEdge
 from grapresso.components.node import Node, IndexedNode
 
 
@@ -71,13 +71,13 @@ class InMemoryBackend(DataBackend):
     def add_edge(self, from_node_name, to_node_name, symmetric: bool = False, **attributes):
         if to_node_name in self._id_to_node[from_node_name].edges:
             raise EdgeAlreadyExistsError(from_node_name, to_node_name)
-        edge = Edge(self[from_node_name], self[to_node_name], **attributes)
-        self._id_to_node[from_node_name].add_edge(edge)
+        edge = DefaultEdge(self[from_node_name], self[to_node_name], **attributes)
+        self._id_to_node[from_node_name].connect(edge)
         if symmetric:
             if self._dna == Trait.OPTIMIZE_PERFORMANCE:
                 self.add_edge(to_node_name, from_node_name, **attributes)
             else:
-                self._id_to_node[to_node_name].add_edge(edge)
+                self._id_to_node[to_node_name].connect(edge)
 
     def edges(self) -> Iterable:
         return itertools.chain(*[n.edges for n in self])
@@ -85,3 +85,17 @@ class InMemoryBackend(DataBackend):
     @property
     def mst_alg_hint(self) -> str:
         return 'prim'
+
+    def remove_edge(self, from_node_name: Hashable, to_node_name: Hashable):
+        raise NotImplementedError(f"Remove is not yet implemented for {__name__}")
+
+    def remove_node(self, node_name: Hashable):
+        raise NotImplementedError(f"Remove is not yet implemented for {__name__}")
+
+    @property
+    def costminflow_alg_hint(self) -> str:
+        return 'successive-shortest-path'
+
+    @property
+    def data(self) -> Any:
+        return self._id_to_node

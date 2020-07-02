@@ -12,7 +12,8 @@ Caffeinated Python graph data structure library originated from an academical co
 **Grapresso** :coffee: is like a good espresso among other common graph libraries:
 
 - **Quickly consumed**: Easy-to-learn and setup
-- **Selectable beans**: Choose your purpose-dependent *storage format* (e.g. in-memory or file-based)
+- **Selectable flavours**: Choose your purpose-dependent *storage format* (e.g. in-memory or file-based)
+- **Beans are first class**: The graph nodes are the first class citizens, not the edges
 - **Clean and lightweight**: Written in pure *Python 3*, no external libraries needed
 - **Concentrated**: Clear and concise *algorithms*
 - **Make your Macchiato**: Extensible by design
@@ -26,10 +27,10 @@ Feel free to contribute! Make it feel like home for your own graph algorithms if
 Want to get the shortest tour (round-trip) for [TSP](https://en.wikipedia.org/wiki/Travelling_salesman_problem)? Usage is easy:
 
 ```python
-from grapresso import UndirectedGraph
+from grapresso import BiGraph
 
 # Build a fully connected graph using InMemoryBackend (default if no backend is given):
-graph = UndirectedGraph() \
+graph = BiGraph() \
     .add_edge("Aachen", "Amsterdam", cost=230) \
     .add_edge("Amsterdam", "Brussels", cost=200) \
     .add_edge("Brussels", "Aachen", cost=142)
