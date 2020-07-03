@@ -3,6 +3,7 @@ from typing import Iterable, Hashable
 from .edge import Edge
 
 
+# TODO(kdevo): Refactor and merge with IndexedNode
 class Node:
     def __init__(self, name, balance: float = 0, **kwargs):
         """Constructs a node with a name."""
@@ -22,13 +23,13 @@ class Node:
 
     @property
     def neighbours(self) -> Iterable['Node']:
-        return [edge.other_node_than(self) for edge in self._edges]
+        return [edge.opposite(self) for edge in self._edges]
 
     def connect(self, edge):
         self._edges.append(edge)
         # TODO(kdevo): Refactor this to 'Connection' class so that this check is not necessary
-        if edge.from_node != self and edge.to_node != self:
-            raise ValueError()
+        # if edge.from_node != self and edge.to_node != self:
+        #     raise ValueError()
 
     @property
     def edges(self) -> Iterable[Edge]:
@@ -47,22 +48,24 @@ class Node:
         raise KeyError(f"There is no neighbour {neighbour_node} accessible from node {self}")
 
     def __str__(self):
-        return f"Node {self._name}"
+        return f"{self._name}"
 
     def __repr__(self):
-        return f"Node '{self._name}'"
+        return f"{repr(self._name)}"
 
     def __hash__(self):
         return hash(self._name)
 
     def __eq__(self, other):
-        return (isinstance(self, type(other)) and self.name == other.name) \
-               or isinstance(other, Hashable) and self.name == other
+        return self._name == other
 
     def __lt__(self, other):
-        return self.name < other.name
+        return self.balance < other.balance
 
-    def updated_sorted_edges(self) -> Iterable[Edge]:
+    # FIXME(kdevo): When later specifying the Node as ABC, this should be removed and handled externally,
+    #  though it boosts performance 'on-demand' (that is when an algorithm needs it), but algorithms should be clearly
+    #  divided from semantic data access which is the purpose of this class.
+    def sorted_edges(self) -> Iterable[Edge]:
         self._edges.sort(key=lambda e: e.cost)
         return self.edges
 
@@ -73,6 +76,9 @@ class Node:
     @property
     def is_sink(self) -> bool:
         return self.balance < 0.0
+
+    def __getitem__(self, item):
+        return self.edge(item)
 
 
 class IndexedNode(Node):
@@ -88,7 +94,7 @@ class IndexedNode(Node):
 
     def connect(self, edge: Edge):
         super().connect(edge)
-        self._indexed_edges[edge.other_node_than(self)] = edge
+        self._indexed_edges[edge.opposite(self)] = edge
 
     def edge(self, neighbour_node: Node) -> Edge:
         try:
@@ -103,3 +109,4 @@ class IndexedNode(Node):
     @property
     def edges(self) -> Iterable[Edge]:
         return self._edges
+

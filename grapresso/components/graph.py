@@ -1,7 +1,7 @@
 import math
 from collections import deque
 from heapq import heappush, heappop
-from typing import Optional, Set, Union
+from typing import Optional, Set, Union, Callable
 
 from .api import BellmanFordResult, DistanceTable, DistanceEntry, MstResult
 from ..backend.api import DataBackend
@@ -123,7 +123,7 @@ class DiGraph:
                 on_visited_cb(current_node)
         return seen
 
-    def perform_kruskal(self, on_new_edge_cb: callable = None) -> float:
+    def perform_kruskal(self, on_new_edge_cb: Callable[[Edge], None] = None) -> float:
         dj_set = DefaultDisjointSet(self._nodes_data)
 
         cost = 0
@@ -241,7 +241,7 @@ class DiGraph:
         return Path.from_tree(lambda v: bmr.dist_table[v].parent, self[start_node_name], self[end_node_name])
 
     def __str__(self):
-        return "Node count: {} | Edges: {}".format(len(self._nodes_data), *self._nodes_data.edges())
+        return "Nodes: {} | Edges: {}".format(len(self._nodes_data), len(*self._nodes_data.edges()))
 
     def __len__(self):
         return len(self._nodes_data)
@@ -413,7 +413,7 @@ class DiGraph:
         return flow
 
 
-class BiGraph(DiGraph):
+class UnDiGraph(DiGraph):
     def add_edge(self, a, b, **kwargs):
         if a not in self._nodes_data:
             self.add_node(a)
@@ -437,13 +437,13 @@ class BiGraph(DiGraph):
         with CircularTour(node) as nn_tour:
             while len(to_visit) - 1 > 0:
                 to_visit.remove(node)
-                edge = next(e for e in node.updated_sorted_edges() if e.to_node in to_visit)
+                edge = next(e for e in node.sorted_edges() if e.to_node in to_visit)
                 nn_tour.go(edge)
                 node = edge.to_node
         return nn_tour
 
     def double_tree_tour(self, start_node_name=None):
-        mst_result = self.build_mst(BiGraph(InMemoryBackend()))
+        mst_result = self.build_mst(UnDiGraph(InMemoryBackend()))
         visited_node_names = []
         mst_result.tree.perform_dfs(start_node_name, on_visited_cb=lambda n: visited_node_names.append(n.name))
         with CircularTour(self[start_node_name]) as dt_tour:

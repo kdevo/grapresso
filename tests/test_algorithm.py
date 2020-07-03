@@ -1,6 +1,6 @@
 import math
 
-from grapresso import DiGraph, BiGraph
+from grapresso import DiGraph, UnDiGraph
 from grapresso.backend.memory import InMemoryBackend
 from grapresso.components.path import Flow
 
@@ -44,7 +44,7 @@ class TestAlgorithm:
         assert l1 != l2
 
     def test_full_enumeration(self, create_backend):
-        g = BiGraph(create_backend()) \
+        g = UnDiGraph(create_backend()) \
             .add_edge("Aachen", "Amsterdam", cost=230) \
             .add_edge("Amsterdam", "Brussels", cost=200) \
             .add_edge("Brussels", "Aachen", cost=142)
@@ -68,7 +68,7 @@ class TestAlgorithm:
         assert len(tours.all_tours) == math.factorial(len(g._nodes_data) - 1) * 0.5
 
     def test_shortest_tour(self, create_backend):
-        g = BiGraph(create_backend()) \
+        g = UnDiGraph(create_backend()) \
             .add_edge("Aachen", "Amsterdam", cost=230) \
             .add_edge("Amsterdam", "Brussels", cost=200) \
             .add_edge("Brussels", "Aachen", cost=142)
@@ -95,7 +95,7 @@ class TestAlgorithm:
         assert res_graph.edge("Amsterdam", "Aachen").capacity == 55
 
     def test_get_edge(self, create_backend):
-        graph = BiGraph(create_backend()) \
+        graph = UnDiGraph(create_backend()) \
             .add_edge("Aachen", "Amsterdam", cost=230, capacity=100) \
             .add_edge("Amsterdam", "Brussels", cost=200, capacity=60) \
             .add_edge("Brussels", "Aachen", cost=142, capacity=50)

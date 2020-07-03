@@ -1,4 +1,4 @@
-from typing import Iterable, Hashable, Any
+from typing import Iterable, Hashable, Any, Dict
 
 import networkx as nx
 
@@ -8,29 +8,32 @@ from grapresso.components.node import Node
 
 
 class NxEdge(Edge):
-    def __init__(self, from_node: 'Node', to_node: 'Node', **kwargs):
-        super().__init__(from_node, to_node, **kwargs)
+    """NxEdge is a "virtual" edge:
+    Basically it does not store any attributes except from_node and to_node references.
+    All properties are computed by using the NetworkX graph structure itself.
+
+    """
+
+    def __init__(self, from_node: 'Node', to_node: 'Node', nx_edge: Dict[Hashable, Any]):
         self._from_node = from_node
         self._to_node = to_node
-        self._nxg: nx.DiGraph = to_node._nxg
+        self._edge_data = nx_edge
 
     @property
     def cost(self) -> float:
-        edge = self._nxg.edges[self._from_node, self._to_node]
-        return edge['cost'] if 'cost' in edge else 0.0
+        return self._edge_data.get('cost', 0.0)
 
     @cost.setter
     def cost(self, cost):
-        self._nxg.edges[self._from_node, self._to_node]['cost'] = cost
+        self._edge_data['cost'] = cost
 
     @property
     def capacity(self) -> float:
-        edge = self._nxg.edges[self._from_node, self._to_node]
-        return edge['capacity'] if 'capacity' in edge else 0.0
+        return self._edge_data.get('capacity', 0.0)
 
     @capacity.setter
     def capacity(self, cap):
-        self._nxg.edges[self._from_node, self._to_node]['capacity'] = cap
+        self._edge_data['capacity'] = cap
 
     @property
     def to_node(self) -> 'Node':
@@ -41,18 +44,22 @@ class NxEdge(Edge):
         return self._from_node
 
     def __getattr__(self, item):
-        val = self._nxg.edges[self._from_node, self._to_node][item]
+        val = self._edge_data[item]
         self.__setattr__(item, val)
         return val
 
+    @property
+    def data(self) -> Dict[Hashable, Any]:
+        return self._edge_data
+
     def inverse(self) -> 'Edge':
-        return NxEdge(self.to_node, self.from_node, **self._nxg.edges[self._from_node, self._to_node])
+        return NxEdge(self.to_node, self.from_node, self._edge_data)
 
 
 class NxNode(Node):
     def __init__(self, nx_graph: nx.DiGraph, name, balance=None, **kwargs):
-        super().__init__(name, balance, **kwargs)
         self._nxg = nx_graph
+        self._name = name
 
     @property
     def balance(self) -> float:
@@ -71,18 +78,20 @@ class NxNode(Node):
         return neighbours
 
     def edge(self, neighbour_node: 'Node') -> Edge:
-        data = self._nxg.adj[self][neighbour_node]
-        return NxEdge(self, self._build(neighbour_node), **data)
+        data = self._nxg[self][neighbour_node]
+        return NxEdge(self, self._build(neighbour_node), data)
 
     @property
     def edges(self) -> Iterable[Edge]:
-        edges = [NxEdge(self, self._build(e[1]), **e[2]) for e in self._nxg.edges(self.name, data=True)]
+        edges = [NxEdge(self, self._build(e[1]), e[2]) for e in self._nxg.edges(self.name, data=True)]
         return edges
 
     # TODO(kdevo): Untested
     def connect(self, edge: Edge):
-        edge_data = edge.__dict__
-        self._nxg.add_edge(self, edge.to_node, **edge_data)
+        self._nxg.add_edge(self, edge.to_node, **edge.data)
+
+    def sorted_edges(self) -> Iterable[Edge]:
+        return sorted(self.edges, key=lambda e: e.cost)
 
 
 class NetworkXBackend(DataBackend):
@@ -104,6 +113,7 @@ class NetworkXBackend(DataBackend):
 
     def __init__(self):
         self._nx = nx.DiGraph()
+        # TODO(kdevo): Try to use a node factory method here to increase performance
 
     @property
     def nx_graph(self) -> nx.DiGraph:
@@ -140,7 +150,7 @@ class NetworkXBackend(DataBackend):
 
     def edges(self) -> Iterable[Edge]:
         edges = self._nx.edges.data(default={})
-        return [NxEdge(self[e[0]], self[e[1]], **e[2]) for e in edges]
+        return [NxEdge(self[e[0]], self[e[1]], e[2]) for e in edges]
 
     @property
     def mst_alg_hint(self) -> str:
