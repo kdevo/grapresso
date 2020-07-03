@@ -11,20 +11,22 @@ Caffeinated Python graph data structure library originated from an academical co
  
 **Grapresso** :coffee: is like a good espresso among other common graph libraries:
 
-- **Quickly consumed**: Easy-to-learn and setup - just try it!
+- **Quickly consumed**: Easy-to-learn and setup - [just try it](#Usage)!
 - **Different flavours**: Choose your [backend](#Backends)
 - **Beans are first class**: Object-oriented approach with nodes as first [*class citizens*](https://github.com/kdevo/grapresso/blob/master/grapresso/components/node.py#L7)
 - **Concentrated**: [Clear and concise *algorithms*](https://github.com/kdevo/grapresso/blob/master/grapresso/components/graph.py#L117)
 - **Make your Macchiato**: Extensible by design, e.g. [proven by the new NetworkX backend implementation](#Implementations)
 - **Well tested ingredients**: Stress-[integration-tested](https://github.com/kdevo/grapresso-it) using *huge* graphs
-- **Clean and lightweight**: Written in pure *Python 3*, [no external libraries needed](https://github.com/kdevo/grapresso/blob/master/setup.py#L25)
+- **Clean and lightweight**: Written in pure *Python 3*, 
+[no other libraries needed](https://github.com/kdevo/grapresso/blob/master/setup.py#L25) - 
+ works excellently with PyPy, [up to 4x faster](https://travis-ci.org/github/kdevo/grapresso/builds/704782062) :zap:
 
 > :warning: There are many popular algorithms that are **not** yet implemented.
 Feel free to contribute! Make it feel like home for your own graph algorithms if you want to.
-> 
+>
 > :bulb: Since July 2020, you can also use Grapresso as a middleman for NetworkX thanks to the NetworkX backend.
 > Therewith, you can utilize the full power of NetworkX in case an algorithm is not implemented in Grapresso.
-
+ 
 ## Usage
 
 Want to get the shortest tour (round-trip) for [TSP](https://en.wikipedia.org/wiki/Travelling_salesman_problem)? Usage is easy:
