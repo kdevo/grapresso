@@ -65,6 +65,15 @@ class Connection(ABC):
     def __repr__(self):
         return f"➔ {repr(self.to_node)} (${self.cost}{f', ^{self.capacity}' if self.capacity != 0 else ''})"
 
+    def __getitem__(self, item):
+        return self.data[item]
+
+    def __setitem__(self, key, value):
+        self.data[key] = value
+
+    def __getattr__(self, item):
+        pass
+
 
 class Edge(Connection):
     @abstractmethod

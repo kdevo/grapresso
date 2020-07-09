@@ -1,13 +1,13 @@
 import math
 from collections import deque
 from heapq import heappush, heappop
-from typing import Optional, Set, Union, Callable
+from typing import Optional, Set, Union, Callable, Iterable, Hashable, Tuple
 
+from grapresso.components.edge import Edge
+from grapresso.components.node import Node
 from .api import BellmanFordResult, DistanceTable, DistanceEntry, MstResult
 from ..backend.api import DataBackend
 from ..backend.memory import InMemoryBackend
-from grapresso.components.edge import Edge
-from grapresso.components.node import Node
 from ..components.path import CircularTour, TourTracker, Path, Cycle, Flow
 from ..datastruct.disjointset import DefaultDisjointSet
 
@@ -29,13 +29,35 @@ class DiGraph:
         """
         return self._nodes_data
 
-    def __getitem__(self, item) -> Union[Node, Optional[Edge]]:
-        if isinstance(item, tuple) and len(item) == 2:
-            return self.edge(item[0], item[1])
+    def __getitem__(self, item: Union[Node, Edge, Hashable]) -> Union[Optional[Node], Optional[Edge]]:
+        if isinstance(item, Edge):
+            return self.edge(item.from_node, item.to_node)
         else:
-            return self.node_by_name(item)
+            return self.node(item)
 
-    def node_by_name(self, start_node_name) -> Node:
+    # TODO(kdevo): Untested
+    def from_tuples(self, *args: Union[Hashable, Tuple]):
+        for it in args:
+            if not isinstance(it, tuple):
+                self.add_node(it)
+            else:
+                if 1 >= len(it) >= 4 or len(it) == 3 and not isinstance(it[2], dict):
+                    raise ValueError("Only tuples from 1 to 3 values are allowed, "
+                                     "where (u, v) means edge from u to v and with an optional data dict {} such as "
+                                     "(u, v, {'k': 'val'}) and (u, {'k': 'val'}) means node u with a data dict.")
+                elif len(it) == 2 and isinstance(it[1], dict):
+                    self.add_node(it[0], **it[1])
+                elif len(it) == 3 and isinstance(it[2], dict):
+                    self.add_edge(it[0], it[1], **it[2])
+                else:
+                    self.add_edge(it[0], it[1])
+        return self
+
+    def edges(self, from_node=None, to_node=None) -> Iterable[Edge]:
+        return [e for e in self._nodes_data.edges()
+                if (not from_node or e.from_node == from_node) and (not to_node or e.to_node == to_node)]
+
+    def node(self, start_node_name) -> Optional[Node]:
         """Convenience helper: Returns a (random) start_node if it is None.
 
         Args:
@@ -44,7 +66,10 @@ class DiGraph:
         Returns
             start_node if start_node is not None else a random node from the graph.
         """
-        return next(iter(self._nodes_data)) if start_node_name is None else self._nodes_data[start_node_name]
+        try:
+            return next(iter(self._nodes_data)) if start_node_name is None else self._nodes_data[start_node_name]
+        except KeyError:
+            return None
 
     def free_node_name(self, wished_name: str = "Node") -> str:
         """Returns a free node name based on wished_name using a numeric suffix.
@@ -86,7 +111,9 @@ class DiGraph:
 
     def edge(self, from_node_name, to_node_name) -> Optional[Edge]:
         try:
-            return self[from_node_name].edge(self._nodes_data[to_node_name])
+            node = self[from_node_name]
+            if node:
+                return node.edge(self._nodes_data[to_node_name])
         except KeyError:
             return None
 
@@ -140,8 +167,7 @@ class DiGraph:
 
     def build_mst(self, initialized_graph, preferred_algorithm=None) -> MstResult:
         costs = {'kruskal': self.perform_kruskal, 'prim': self.perform_prim}[
-            preferred_algorithm if preferred_algorithm else self._nodes_data.mst_alg_hint
-        ](
+            preferred_algorithm if preferred_algorithm else self._nodes_data.mst_alg_hint](
             on_new_edge_cb=lambda e: initialized_graph.add_edge(e.from_node.name, e.to_node.name, cost=e.cost)
         )
         return MstResult(costs, initialized_graph)
@@ -241,7 +267,10 @@ class DiGraph:
         return Path.from_tree(lambda v: bmr.dist_table[v].parent, self[start_node_name], self[end_node_name])
 
     def __str__(self):
-        return "Nodes: {} | Edges: {}".format(len(self._nodes_data), len(*self._nodes_data.edges()))
+        return self.__repr__()
+
+    def __repr__(self):
+        return "Directed graph with {} nodes".format(len(self._nodes_data))
 
     def __len__(self):
         return len(self._nodes_data)
@@ -540,3 +569,6 @@ class UnDiGraph(DiGraph):
             if e.from_node.name in node_names_a and e.to_node.name in node_names_b:
                 matched_edges.append(self.edge(e.from_node.name, e.to_node.name))
         return matched_edges
+
+    def __repr__(self):
+        return "Undirected graph with {} nodes".format(len(self._nodes_data))

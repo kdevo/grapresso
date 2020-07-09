@@ -11,7 +11,7 @@ class TestTour:
             .add_edge(2, 3) \
             .add_edge(2, 1)
 
-        start_node = g.node_by_name(1)
+        start_node = g.node(1)
         tour = CircularTour(start_node)
         tour.go(next(iter(start_node.edges)))
         assert tour.start_node == start_node

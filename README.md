@@ -18,10 +18,12 @@ Caffeinated Python graph data structure library originated from an academical co
 - **Make your Macchiato**: Extensible by design, e.g. [proven by the new NetworkX backend implementation](#Implementations)
 - **Well tested ingredients**: Stress-[integration-tested](https://github.com/kdevo/grapresso-it) using *huge* graphs
 - **Clean and lightweight**: Written in pure *Python 3*, 
-[no other libraries needed](https://github.com/kdevo/grapresso/blob/master/setup.py#L25) - 
- works excellently with PyPy, [up to 4x faster](https://travis-ci.org/github/kdevo/grapresso/builds/704782062) :zap:
+[no other libraries needed](https://github.com/kdevo/grapresso/blob/master/setup.py#L25) 
 
-> :warning: There are many popular algorithms that are **not** yet implemented.
+Grapresso works wonderfully with PyPy and is up to [up to 4x faster than your regular Python](https://travis-ci.org/github/kdevo/grapresso/builds/704782062) :cake: :zap:
+ 
+
+> There are many popular algorithms that are **not** yet implemented.
 Feel free to contribute! Make it feel like home for your own graph algorithms if you want to.
 >
 > :bulb: Since July 2020, you can also use Grapresso as a middleman for NetworkX thanks to the NetworkX backend.
