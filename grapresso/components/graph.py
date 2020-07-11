@@ -6,8 +6,8 @@ from typing import Optional, Set, Union, Callable, Iterable, Hashable, Tuple
 from grapresso.components.edge import Edge
 from grapresso.components.node import Node
 from .api import BellmanFordResult, DistanceTable, DistanceEntry, MstResult
-from ..backend.api import DataBackend
-from ..backend.memory import InMemoryBackend
+from ..backends.api import DataBackend
+from ..backends.memory import InMemoryBackend
 from ..components.path import CircularTour, TourTracker, Path, Cycle, Flow
 from ..datastruct.disjointset import DefaultDisjointSet
 
@@ -52,6 +52,15 @@ class DiGraph:
                 else:
                     self.add_edge(it[0], it[1])
         return self
+
+    # TODO(kdevo): Untested
+    def copy_to(self, graph):
+        for e in self.edges():
+            graph.add_edge(e.from_node, e.to_node, **e.data)
+        return graph
+
+    def convert_to(self, backend: DataBackend):
+        return self.copy_to(self.__init__(backend))
 
     def edges(self, from_node=None, to_node=None) -> Iterable[Edge]:
         return [e for e in self._nodes_data.edges()
