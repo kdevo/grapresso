@@ -2,11 +2,13 @@
     <img alt="Grapresso Logo" src="https://raw.githubusercontent.com/kdevo/grapresso/master/.github/logo.png" width="512" width="64">
 </a>
 <a href="https://travis-ci.org/kdevo/grapresso" target="_blank">
-    <img align="right" alt="Travis CI Build Status" src="https://travis-ci.org/kdevo/grapresso.svg?branch=master">
+    <img align="right" alt="Travis CI Build Status" src="https://img.shields.io/travis/kdevo/grapresso?style=for-the-badge">
 </a>
-<img align="right" alt="Libraries.io dependency status for latest release" src="https://img.shields.io/librariesio/release/pypi/grapresso">
-<img align="right" alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/grapresso">
 
+
+![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/pypi/grapresso)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/grapresso)
+![PyPI](https://img.shields.io/pypi/v/grapresso)
 ---
 
 Caffeinated object-oriented Python graph data structure library [originated from an academical context](#Development).
