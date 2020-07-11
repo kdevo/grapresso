@@ -4,6 +4,8 @@
 <a href="https://travis-ci.org/kdevo/grapresso" target="_blank">
     <img align="right" alt="Travis CI Build Status" src="https://travis-ci.org/kdevo/grapresso.svg?branch=master">
 </a>
+<img align="right" alt="Libraries.io dependency status for latest release" src="https://img.shields.io/librariesio/release/pypi/grapresso">
+<img align="right" alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/grapresso">
 
 ---
 
@@ -28,7 +30,7 @@ Grapresso works wonderfully with PyPy and is up to [up to 4x faster than your re
 
 
 ## Goals 
-#### or: Grapresso vs. alternatives
+### Grapresso vs. alternatives
 
 There are many other good graph/network theory libraries. 
 The most popular Python one is probably [NetworkX](https://networkx.github.io/).
@@ -79,8 +81,8 @@ that is also capable of drawing the graph:
 pip install grapresso[backend-networkx]
 ```
 
-Let's quickly draw our the graph of the previous example by first converting the graph to one that uses NetworkX in the background 
-and then use NetworkX's natural drawing capabilities:
+Let's quickly draw our previous graph by first converting it to one that uses NetworkX in the background 
+and then utilizing NetworkX's natural drawing capabilities:
 
 ```python
 from grapresso.backends import NetworkXBackend
@@ -114,7 +116,7 @@ Algorithms are performed on a so called "backend" which wraps the graph's intern
 The API is defined in [backend/api.py](grapresso/backends/api.py). Therewith, backends can easily be added provided that they carefully implement the defined API.
 
 #### Implementations
-Implementation                                           | Type                                                  | Underlying data structure                                            | Installation 
+Implementation                                           | Type                                                  | Underlying data structure                                            | Plugin installation 
 -------------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------- | ------
 [InMemoryBackend](/grapresso/backends/memory.py)          | In-Memory with Traits                                 | `{node_name: obj}` with obj containing edges                        | Built-in 
 [NetworkXBackend](/grapresso/backends/networkx.py)        | [NetworkX](https://networkx.github.io/) compatible    | nx.DiGraph with custom NetworkXNode/-Edge                           | `pip install grapresso[backend-networkx]`
