@@ -125,5 +125,12 @@ Implementation                                           | Type                 
 
 ## Development
 
-This project has been originated in the subject *Mathematical Methods for Computer Science* (translated from the German "Mathematische Methoden der Informatik")   in the study programme Information Systems Engineering (ISE) at the FH Aachen.
-Contributions are welcome!
+This project has been originated in the subject *Mathematical Methods for Computer Science* (translated from the German "Mathematische Methoden der Informatik", abbreviated **MMI**) 
+in the study programme Information Systems Engineering (ISE) at the FH Aachen.
+
+### Contributing
+
+Contributions are welcome, as long as the three [goals](#Goals) are followed.
+
+Otherwise, you can simply support this project by hitting the ![GitHub stars](https://img.shields.io/github/stars/kdevo/grapresso?style=social) button.
+Thanks!
