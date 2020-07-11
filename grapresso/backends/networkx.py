@@ -2,7 +2,7 @@ from typing import Iterable, Hashable, Any, Dict
 
 import networkx as nx
 
-from grapresso.backend.api import DataBackend
+from grapresso.backends.api import DataBackend
 from grapresso.components.edge import Edge
 from grapresso.components.node import Node
 

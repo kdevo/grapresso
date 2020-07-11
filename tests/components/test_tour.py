@@ -1,4 +1,4 @@
-from grapresso.backend.memory import InMemoryBackend
+from grapresso.backends.memory import InMemoryBackend
 from grapresso.components.graph import DiGraph
 from grapresso.components.path import CircularTour
 

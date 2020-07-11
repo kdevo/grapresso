@@ -1,7 +1,7 @@
 import math
 
 from grapresso import DiGraph, UnDiGraph
-from grapresso.backend.memory import InMemoryBackend
+from grapresso.backends.memory import InMemoryBackend
 from grapresso.components.path import Flow
 
 
