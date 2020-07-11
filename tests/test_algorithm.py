@@ -1,6 +1,7 @@
 import math
 
 from grapresso import DiGraph, UnDiGraph
+from grapresso.backends import NetworkXBackend
 from grapresso.backends.memory import InMemoryBackend
 from grapresso.components.path import Flow
 
@@ -82,6 +83,14 @@ class TestAlgorithm:
         tour = g.cheapest_tour("Aachen")
         assert tour.cost == 842
         print(tour)
+
+        # nxg = g.copy_to(UnDiGraph(NetworkXBackend(directed=False)))
+        # nxg.backend.quick_draw(
+        #     # Map ISO codes to the nodes so that the text fits in the boundaries:
+        #     labels={'Aachen': 'AC', 'Amsterdam': 'AMS', 'Brussels': 'BR', 'Luxembourg': 'LUX'},
+        #     label_pos=0.42,
+        #     mark_edges=tour.edges,
+        # )
 
     def test_residual(self, create_backend):
         graph = DiGraph(create_backend()) \

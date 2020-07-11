@@ -59,9 +59,6 @@ class DiGraph:
             graph.add_edge(e.from_node, e.to_node, **e.data)
         return graph
 
-    def convert_to(self, backend: DataBackend):
-        return self.copy_to(self.__init__(backend))
-
     def edges(self, from_node=None, to_node=None) -> Iterable[Edge]:
         return [e for e in self._nodes_data.edges()
                 if (not from_node or e.from_node == from_node) and (not to_node or e.to_node == to_node)]

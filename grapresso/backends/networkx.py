@@ -111,8 +111,8 @@ class NetworkXBackend(DataBackend):
     def data(self) -> Any:
         return self.nx_graph
 
-    def __init__(self):
-        self._nx = nx.DiGraph()
+    def __init__(self, directed=True):
+        self._nx = nx.DiGraph() if directed else nx.Graph()
         # TODO(kdevo): Try to use a node factory method here to increase performance
 
     @property
@@ -159,3 +159,34 @@ class NetworkXBackend(DataBackend):
     @property
     def costminflow_alg_hint(self) -> str:
         return 'successive-shortest-path'
+
+    def quick_draw(self, pos=None, ax=None, edge_label_selector='cost', mark_edges=None, **kwargs):
+        import matplotlib.pyplot as plt
+        graph = self._nx
+        defaults = {
+            'mark_edges': mark_edges,
+            'node_color': '#0097a7',
+            'node_size': 700,
+            'edge_label_pos': 0.42,
+            'edge_labels': {(e.from_node, e.to_node): e[edge_label_selector]
+                            for e in self.edges()} if edge_label_selector else None,
+        }
+
+        kw_dict = {**defaults, **kwargs}
+        pos = pos if pos else nx.spring_layout(self._nx)
+        if kw_dict['edge_labels']:
+            nx.draw_networkx_edge_labels(
+                graph, pos,
+                edge_labels=kw_dict['edge_labels'],
+                label_pos=kw_dict['edge_label_pos'],
+                font_weight=kw_dict.get('edge_font_weight', kw_dict.get('font_weight'))
+            )
+        if kw_dict['mark_edges']:
+            nx.draw_networkx_edges(graph, pos,
+                                   edgelist=[(e.from_node, e.to_node) for e in kw_dict['mark_edges']],
+                                   edge_color='#0097a7',
+                                   width=kw_dict.get('edge_width', 1) * 4)
+        nx.draw_networkx(graph, pos, ax, **kw_dict)
+
+        plt.axis('off')
+        plt.show()
