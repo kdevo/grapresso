@@ -7,7 +7,7 @@
 
 ---
 
-Caffeinated Python graph data structure library originated from an academical context (see [Development](#Development)).
+Caffeinated object-oriented Python graph data structure library [originated from an academical context](#Development).
  
 **Grapresso** ☕ is like a good espresso among other graph libs:
 
@@ -44,7 +44,13 @@ Instead, it follows a different philosophy and aims to be...
  
 ## Usage
 
-Want to get the shortest tour (round-trip) for [TSP](https://en.wikipedia.org/wiki/Travelling_salesman_problem)? Usage is easy:
+Install from PyPI, for instance via pip (needs Python >= 3.6):
+
+```shell
+pip install grapresso
+```
+
+Want to get the cheapest tour (round-trip) for [TSP](https://en.wikipedia.org/wiki/Travelling_salesman_problem)? Usage is easy:
 
 ```python
 from grapresso import Graph
@@ -57,14 +63,45 @@ graph = Graph() \
 
 # Now also add Luxembourg - note that every city needs to be connected to it for the graph to stay fully connected:
 for city, dist in zip(("Aachen", "Brussels", "Amsterdam"), (200, 212, 420)):
-    graph.add_edge(city, "Luxembourg", dist)
+    graph.add_edge(city, "Luxembourg", cost=dist)
 
 tour = graph.cheapest_tour("Aachen")
 assert tour.cost == 842
 print(tour)
 ```
 
-See [tests directory](tests) for more examples!
+Now, printing to console is not really visually appealing, is it?
+Let's install a backend plugin 
+[as an extra](https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies) 
+that is also capable of drawing the graph:
+
+```shell
+pip install grapresso[backend-networkx]
+```
+
+Let's quickly draw our the graph of the previous example by first converting the graph to one that uses NetworkX in the background 
+and then use NetworkX's natural drawing capabilities:
+
+```python
+from grapresso.backends import NetworkXBackend
+
+nx_graph = graph.copy_to(Graph(NetworkXBackend(directed=False)))
+nx_graph.backend.quick_draw(
+    # Map ISO codes to the nodes so that the text fits in the boundaries:
+    labels={'Aachen': 'AC', 'Amsterdam': 'AMS', 'Brussels': 'BR', 'Luxembourg': 'LUX'},
+    # Show cost as label:
+    edge_label_selector='cost',
+    # Mark edges that are actually in the tour
+    mark_edges=tour.edges,
+)
+```
+
+The resulting image:
+
+![Plotted graph using NetworkX backend](.github/tsp.png)
+
+See [tests directory](tests) for more examples and also have a look at the 
+[integration tests](https://github.com/kdevo/grapresso-it/blob/master/tests/perf/test_algorithm_integration.py)!
 
 ## Architecture
 
@@ -77,13 +114,12 @@ Algorithms are performed on a so called "backend" which wraps the graph's intern
 The API is defined in [backend/api.py](grapresso/backends/api.py). Therewith, backends can easily be added provided that they carefully implement the defined API.
 
 #### Implementations
-Implementation                                           | Type                                                  | Underlying data structure                   
--------------------------------------------------------- | ----------------------------------------------------- | -------------------------------
-[InMemoryBackend](/grapresso/backends/memory.py)          | In-Memory with Traits                                 | `{node_name: obj}` with obj containing edges
-[NetworkXBackend](/grapresso/backends/networkx.py)        | [NetworkX](https://networkx.github.io/) compatible    | nx.DiGraph with custom NetworkXNode/-Edge
+Implementation                                           | Type                                                  | Underlying data structure                                            | Installation 
+-------------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------- | ------
+[InMemoryBackend](/grapresso/backends/memory.py)          | In-Memory with Traits                                 | `{node_name: obj}` with obj containing edges                        | Built-in 
+[NetworkXBackend](/grapresso/backends/networkx.py)        | [NetworkX](https://networkx.github.io/) compatible    | nx.DiGraph with custom NetworkXNode/-Edge                           | `pip install grapresso[backend-networkx]`
 
 ## Development
 
-This project has been created in the subject "Mathematical Methods for Computer Science" (translated from the German "Mathematische Methoden der Informatik")  at the FH Aachen.
+This project has been originated in the subject *Mathematical Methods for Computer Science* (translated from the German "Mathematische Methoden der Informatik")   in the study programme Information Systems Engineering (ISE) at the FH Aachen.
 Contributions are welcome!
-
