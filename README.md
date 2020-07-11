@@ -9,24 +9,37 @@
 
 Caffeinated Python graph data structure library originated from an academical context (see [Development](#Development)).
  
-**Grapresso** :coffee: is like a good espresso among other common graph libraries:
+**Grapresso** ☕ is like a good espresso among other graph libs:
 
 - **Quickly consumed**: Easy-to-learn and setup - [just try it](#Usage)!
-- **Different flavours**: Choose your [backend](#Backends)
+- **Different flavours**: Suit up your [backend of choice](#Backends)
 - **Beans are first class**: Object-oriented approach with nodes as first [*class citizens*](https://github.com/kdevo/grapresso/blob/master/grapresso/components/node.py#L7)
+- **Make your Macchiato**: Extensible by design, e.g. [battle-tested by the new NetworkX backend implementation](#Implementations)
 - **Concentrated**: [Clear and concise *algorithms*](https://github.com/kdevo/grapresso/blob/master/grapresso/components/graph.py#L117)
-- **Make your Macchiato**: Extensible by design, e.g. [proven by the new NetworkX backend implementation](#Implementations)
 - **Well tested ingredients**: Stress-[integration-tested](https://github.com/kdevo/grapresso-it) using *huge* graphs
 - **Clean and lightweight**: Written in pure *Python 3*, 
 [no other libraries needed](https://github.com/kdevo/grapresso/blob/master/setup.py#L25) 
 
-Grapresso works wonderfully with PyPy and is up to [up to 4x faster than your regular Python](https://travis-ci.org/github/kdevo/grapresso/builds/704782062) :cake: :zap:
+Grapresso works wonderfully with PyPy and is up to [up to 4x faster than your regular Python](https://travis-ci.org/github/kdevo/grapresso/builds/704782062). ⚡ 
  
 
-> There are many popular algorithms that are **not** yet implemented.
-Feel free to contribute! Make it feel like home for your own graph algorithms if you want to.
->
-> :bulb: Since July 2020, you can also use Grapresso as a middleman for NetworkX thanks to the NetworkX backend.
+> This project is in an early state. There are many popular algorithms that are **not** yet implemented (at least natively, read below) 
+> Feel free to contribute! Make it feel like home for your own graph algorithms. 
+
+
+## Goals 
+#### or: Grapresso vs. alternatives
+
+There are many other good graph/network theory libraries. 
+The most popular Python one is probably [NetworkX](https://networkx.github.io/).
+
+From an algorithmic perspective, Grapresso will never be able to beat this extremely powerful library with a long history.
+Instead, it follows a different philosophy and aims to be...
+1. *Object-oriented* [instead of using dicts for everything]()
+2. *Abstracted and modular* through separation of concerns
+3. Finally, a powerful *meta library* to handle other libraries via backends 
+
+> 💡 To fully demonstrate the power of abstraction, Grapresso can be used as a middleman for NetworkX.
 > Therewith, you can utilize the full power of NetworkX in case an algorithm is not implemented in Grapresso.
  
 ## Usage
@@ -61,21 +74,16 @@ Algorithms are implemented completely independent from the backend.
 ### Backends
 Algorithms are performed on a so called "backend" which wraps the graph's internal data structure.
 
-The API is defined in [backend/api.py](grapresso/backend/api.py). Therewith, backends can easily be added provided that they carefully implement the defined API.
+The API is defined in [backend/api.py](grapresso/backends/api.py). Therewith, backends can easily be added provided that they carefully implement the defined API.
 
 #### Implementations
 Implementation                                           | Type                                                  | Underlying data structure                   
 -------------------------------------------------------- | ----------------------------------------------------- | -------------------------------
-[InMemoryBackend](/grapresso/backend/memory.py)          | In-Memory with Traits                                 | `{node_name: obj}` 
-[NetworkXBackend](/grapresso/backend/networkx.py)        | [NetworkX](https://networkx.github.io/) compatible    | nx.DiGraph with custom NetworkXNodes
-
-> :warning: Be careful, the `PickleFileBackend` is not properly tested and more of an experiment right now!
+[InMemoryBackend](/grapresso/backends/memory.py)          | In-Memory with Traits                                 | `{node_name: obj}` with obj containing edges
+[NetworkXBackend](/grapresso/backends/networkx.py)        | [NetworkX](https://networkx.github.io/) compatible    | nx.DiGraph with custom NetworkXNode/-Edge
 
 ## Development
 
 This project has been created in the subject "Mathematical Methods for Computer Science" (translated from the German "Mathematische Methoden der Informatik")  at the FH Aachen.
 Contributions are welcome!
 
-### Conventions
-- :deciduous_tree: [Project structure](https://docs.python-guide.org/writing/structure/)
-- :beers: [gitmoji](https://gitmoji.carloscuesta.me/) - Semantic commit messages
