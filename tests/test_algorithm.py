@@ -100,5 +100,5 @@ class TestAlgorithm:
             .add_edge("Amsterdam", "Brussels", cost=200, capacity=60) \
             .add_edge("Brussels", "Aachen", cost=142, capacity=50)
 
-        edge = graph[("Aachen", "Amsterdam")]
+        edge = graph.edge("Aachen", "Amsterdam")
         assert edge.capacity == 100
