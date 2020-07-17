@@ -17,7 +17,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
     files = os.listdir(path.abspath(path.dirname(__file__)))
     logging.debug(f"Repo files: {'|'.join(files)}")
 
-    def replace_rel(matchobj: re.Match):
+    def replace_rel(matchobj):
         rel_url = matchobj.group(2)
         if rel_url.startswith('/'):
             rel_url = rel_url[1:]
