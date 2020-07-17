@@ -2,31 +2,42 @@ from setuptools import setup, find_packages
 from os import path
 import os
 import re
+import logging
 
-REPO_URL = "https://github.com/kdevo/grapresso"
+
+logging.basicConfig(level=logging.INFO)
+
+AUTHOR = "kdevo"
+PROJECT = "grapresso"
+REPO_PATH = f"{AUTHOR}/{PROJECT}"
+REPO_URL = f"https://github.com/{REPO_PATH}"
 
 with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as readme:
     md_description = readme.read()
     files = os.listdir(path.abspath(path.dirname(__file__)))
-    print('|'.join(files))
+    logging.debug(f"Repo files: {'|'.join(files)}")
 
-
-    def replace_rel(matchobj):
+    def replace_rel(matchobj: re.Match):
         rel_url = matchobj.group(2)
         if rel_url.startswith('/'):
             rel_url = rel_url[1:]
-        abs_url = f"{REPO_URL}/tree/master/{rel_url}"
-        print(f"Replace '{rel_url}' with '{abs_url}'.")
+        # If the URL is an image:
+        if matchobj.group(0).startswith("!"):
+            abs_url = f"https://raw.githubusercontent.com/{REPO_PATH}/master/{rel_url}"
+            logging.info(f"Replace image rel URL '{rel_url}' with abs '{abs_url}'.")
+        else:
+            abs_url = f"{REPO_URL}/tree/master/{rel_url}"
+            logging.info(f"Replace regular rel URL '{rel_url}' with abs '{abs_url}'.")
         return f"{matchobj.group(1)}({abs_url})"
 
 
-    (processed_md_description, num) = re.subn(fr"(\[.*\])\((/?({'|'.join(files)}).*)\)", replace_rel, md_description,
+    (processed_md_description, num) = re.subn(fr"(!?\[.*\])\((/?({'|'.join(files)}).*?)\)",
+                                              replace_rel, md_description,
                                               flags=re.IGNORECASE)
     print(f"Replaced {num} occurrences of relative links from README.md.")
-    print(processed_md_description)
 
 setup(
-    name='grapresso',
+    name=PROJECT,
     version='0.1.0',
     packages=find_packages(exclude=["tests", "tests.*"]),
     url=REPO_URL,
@@ -39,8 +50,8 @@ setup(
     python_requires=">=3.6",
 
     # Metadata for PyPI
-    author='kdevo',
-    author_email='',
+    author=AUTHOR,
+    author_email='https://kdevo.github.io/#contact',
     description='Graph + Espresso = Caffeinated Python graph data structure library!',
     keywords="graph-algorithms graph-theory graph-datastructure storage-format pluggable-backends",
     project_urls={
