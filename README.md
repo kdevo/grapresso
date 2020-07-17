@@ -1,15 +1,22 @@
 <a href="https://git.io/grapresso" target="_blank">
     <img alt="Grapresso Logo" src="https://raw.githubusercontent.com/kdevo/grapresso/master/.github/logo.png" width="512" width="64">
 </a>
-<a href="https://travis-ci.org/kdevo/grapresso" target="_blank">
-    <img align="right" alt="Travis CI Build Status" src="https://img.shields.io/travis/kdevo/grapresso?style=for-the-badge">
-</a>
 
 
-![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/pypi/grapresso)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/grapresso)
-![PyPI](https://img.shields.io/pypi/v/grapresso)
 ---
+
+<div align="left">
+    <a href="https://travis-ci.org/kdevo/grapresso" target="_blank">
+        <img alt="Travis CI Build Status" src="https://img.shields.io/travis/kdevo/grapresso?style=flat&color=6f4e37">
+    </a>
+    <a href="https://pypi.org/project/grapresso/" target="_blank">
+        <img alt="PyPI - Version" src="https://img.shields.io/pypi/v/grapresso?color=6f4e37&style=flat">
+    </a>
+    <a href="https://pypi.org/project/grapresso/" target="_blank">
+        <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/grapresso?color=6f4e37&style=flat">
+    </a>
+</div>
+<br>
 
 Caffeinated object-oriented Python graph data structure library [originated from an academical context](#Development).
  
@@ -18,15 +25,14 @@ Caffeinated object-oriented Python graph data structure library [originated from
 - **Quickly consumed**: Easy-to-learn and setup - [just try it](#Usage)!
 - **Different flavours**: Suit up your [backend of choice](#Backends)
 - **Beans are first class**: Object-oriented approach with nodes as first [*class citizens*](https://github.com/kdevo/grapresso/blob/master/grapresso/components/node.py#L7)
-- **Make your Macchiato**: Extensible by design, e.g. [battle-tested by the new NetworkX backend implementation](#Implementations)
+- **Make your Macchiato**: Extensible by design
 - **Concentrated**: [Clear and concise *algorithms*](https://github.com/kdevo/grapresso/blob/master/grapresso/components/graph.py#L117)
-- **Well tested ingredients**: Stress-[integration-tested](https://github.com/kdevo/grapresso-it) using *huge* graphs
+- **Well tested ingredients**: [Integration-tested](https://github.com/kdevo/grapresso-it) using *huge* graphs
 - **Clean and lightweight**: Written in pure *Python 3*, 
 [no other libraries needed](https://github.com/kdevo/grapresso/blob/master/setup.py#L25) 
 
 Grapresso works wonderfully with PyPy and is up to [up to 4x faster than your regular Python](https://travis-ci.org/github/kdevo/grapresso/builds/704782062). ⚡ 
  
-
 > This project is in an early state. There are many popular algorithms that are **not** yet implemented (at least natively, read below) 
 > Feel free to contribute! Make it feel like home for your own graph algorithms. 
 
@@ -37,14 +43,14 @@ Grapresso works wonderfully with PyPy and is up to [up to 4x faster than your re
 There are many other good graph/network theory libraries. 
 The most popular Python one is probably [NetworkX](https://networkx.github.io/).
 
-From an algorithmic perspective, Grapresso will never be able to beat this extremely powerful library with a long history.
+From an algorithmic perspective, Grapresso will never be able to beat this extremely versatile library with a long history.
 Instead, it follows a different philosophy and aims to be...
-1. *Object-oriented* [instead of using dicts for everything]()
+1. *Object-oriented* 
+[instead of using dicts for everything](https://networkx.github.io/documentation/stable/reference/introduction.html#data-structure)
 2. *Abstracted and modular* through separation of concerns
-3. Finally, a powerful *meta library* to handle other libraries via backends 
+3. Finally, a *meta library* to handle other libraries via backends 
 
 > 💡 To fully demonstrate the power of abstraction, Grapresso can be used as a middleman for NetworkX.
-> Therewith, you can utilize the full power of NetworkX in case an algorithm is not implemented in Grapresso.
  
 ## Usage
 
