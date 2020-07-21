@@ -38,7 +38,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 setup(
     name=PROJECT,
-    version='0.1.0',
+    version='0.1.1',
     packages=find_packages(exclude=["tests", "tests.*"]),
     url=REPO_URL,
     license='GPL-3.0',
@@ -51,7 +51,7 @@ setup(
 
     # Metadata for PyPI
     author=AUTHOR,
-    author_email='https://kdevo.github.io/#contact',
+    author_email='',
     description='Graph + Espresso = Caffeinated Python graph data structure library!',
     keywords="graph-algorithms graph-theory graph-datastructure storage-format pluggable-backends",
     project_urls={
