@@ -9,6 +9,8 @@ logging.basicConfig(level=logging.INFO)
 
 AUTHOR = "kdevo"
 PROJECT = "grapresso"
+VERSION = '0.1.0'
+
 REPO_PATH = f"{AUTHOR}/{PROJECT}"
 REPO_URL = f"https://github.com/{REPO_PATH}"
 
@@ -38,7 +40,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 setup(
     name=PROJECT,
-    version='0.1.0',
+    version=VERSION,
     packages=find_packages(exclude=["tests", "tests.*"]),
     url=REPO_URL,
     license='GPL-3.0',

@@ -1,7 +1,7 @@
 import math
 from collections import deque
 from heapq import heappush, heappop
-from typing import Optional, Set, Union, Callable, Iterable, Hashable, Tuple
+from typing import Optional, Set, Union, Callable, Iterable, Hashable, Tuple, Collection
 
 from grapresso.components.edge import Edge
 from grapresso.components.node import Node
@@ -29,11 +29,8 @@ class DiGraph:
         """
         return self._nodes_data
 
-    def __getitem__(self, item: Union[Node, Edge, Hashable]) -> Union[Optional[Node], Optional[Edge]]:
-        if isinstance(item, Edge):
-            return self.edge(item.from_node, item.to_node)
-        else:
-            return self.node(item)
+    def __getitem__(self, item: Union[Node, Hashable]) -> Union[Optional[Node], Optional[Edge]]:
+        return self._nodes_data[item]
 
     # TODO(kdevo): Untested
     def from_tuples(self, *args: Union[Hashable, Tuple]):
@@ -59,11 +56,14 @@ class DiGraph:
             graph.add_edge(e.from_node, e.to_node, **e.data)
         return graph
 
-    def edges(self, from_node=None, to_node=None) -> Iterable[Edge]:
+    def edges(self, from_node=None, to_node=None) -> Collection[Edge]:
         return [e for e in self._nodes_data.edges()
                 if (not from_node or e.from_node == from_node) and (not to_node or e.to_node == to_node)]
 
-    def node(self, start_node_name) -> Optional[Node]:
+    def symmetric_edges(self, from_node=None, to_node=None):
+        return [e for e in self.edges(from_node, to_node) if e.v.edge(e.u)]
+
+    def node(self, start_node_name: Optional[Hashable]) -> Optional[Node]:
         """Convenience helper: Returns a (random) start_node if it is None.
 
         Args:
@@ -76,6 +76,9 @@ class DiGraph:
             return next(iter(self._nodes_data)) if start_node_name is None else self._nodes_data[start_node_name]
         except KeyError:
             return None
+
+    def __iter__(self):
+        return iter(self._nodes_data)
 
     def free_node_name(self, wished_name: str = "Node") -> str:
         """Returns a free node name based on wished_name using a numeric suffix.

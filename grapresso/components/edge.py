@@ -72,14 +72,13 @@ class Connection(ABC):
         self.data[key] = value
 
     def __getattr__(self, item):
-        pass
+        return self.data[item]
 
 
 class Edge(Connection):
     @abstractmethod
-    def __init__(self, from_node: 'Node', to_node: 'Node', cost: float = None, capacity: float = None,
-                 **kwargs: Dict[str, Any]):
-        pass
+    def __init__(self, from_node: 'Node', to_node: 'Node', **kwargs: Dict[str, Any]):
+        super().__init__(to_node, **kwargs)
 
     @property
     def u(self) -> 'Node':

@@ -28,7 +28,7 @@ class TestBackend:
         edge = backend['3'].edge(backend[4])
         assert edge.cost == 1 and edge.capacity == 10
         with pytest.raises(KeyError):
-            _ = backend[4].edge(backend['3'])
+            _ = backend[4]['3']
 
         assert {1, 2, '3', 4} == {n.name for n in backend}
 

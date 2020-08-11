@@ -3,22 +3,15 @@ from enum import Enum, unique
 from typing import Iterable, Any, Hashable, Dict
 
 from .api import DataBackend, NodeAlreadyExistsError, EdgeAlreadyExistsError
-from grapresso.components.node import Node, IndexedNode
+from grapresso.components.node import Node
 from ..components.edge import Edge
 
 
 class InMemoryEdge(Edge):
-    def __init__(self, from_node: 'Node', to_node: 'Node', cost: float = None, capacity: float = None,
-                 **kwargs: Dict[str, Any]):
+    def __init__(self, from_node: 'Node', to_node: 'Node', **data: Dict[str, Any]):
         self._from_node = from_node
         self._to_node = to_node
-        self._data = {}
-        if cost:
-            self._data['cost'] = cost
-        if capacity:
-            self._data['capacity'] = capacity
-        for k, v in kwargs:
-            self._data[k] = v
+        self._data = data
 
     @property
     def from_node(self) -> 'Node':
@@ -50,53 +43,6 @@ class InMemoryEdge(Edge):
     @property
     def data(self) -> Dict[str, Any]:
         return self._data
-
-
-class InMemoryEdge2(Edge):
-    def __init__(self, from_node: 'Node', to_node: 'Node',
-                 cost: float = None, capacity: float = None, **kwargs: Dict[str, Any]):
-        self._from_node = from_node
-        self._to_node = to_node
-        self._cost = cost
-        self._capacity = capacity
-        # self._data = {}
-        # for k, v in kwargs:
-        #     self._data[k] = v
-
-    @property
-    def from_node(self) -> 'Node':
-        return self._from_node
-
-    @property
-    def to_node(self) -> 'Node':
-        return self._to_node
-
-    @property
-    def cost(self) -> float:
-        return self._cost if self._cost else 0.0
-
-    @cost.setter
-    def cost(self, cost):
-        self._cost = cost
-
-    @property
-    def capacity(self) -> float:
-        return self._capacity if self._capacity else 0.0
-
-    @capacity.setter
-    def capacity(self, cap):
-        self._capacity = cap
-
-    def inverse(self) -> 'Edge':
-        return InMemoryEdge(self._to_node, self._from_node, self._cost, self._capacity)
-
-    @property
-    def data(self) -> Dict[str, Any]:
-        return self._data
-
-
-# TODO(kdevo): Fix
-# InMemoryEdge = InMemoryEdge2
 
 
 @unique
@@ -149,10 +95,7 @@ class InMemoryBackend(DataBackend):
     def add_node(self, node_name, **attributes):
         if node_name in self._id_to_node:
             raise NodeAlreadyExistsError(node_name)
-        if self._dna is Trait.OPTIMIZE_PERFORMANCE:
-            self._id_to_node[node_name] = IndexedNode(node_name, **attributes)
-        else:
-            self._id_to_node[node_name] = Node(node_name, **attributes)
+        self._id_to_node[node_name] = Node(node_name, **attributes)
 
     # def remove_node(self, node_id):
     #     self._id_to_node.pop(node_id)
@@ -166,12 +109,10 @@ class InMemoryBackend(DataBackend):
         edge = InMemoryEdge(self[from_node_name], self[to_node_name], **attributes)
         self._id_to_node[from_node_name].connect(edge)
         if symmetric:
-            if self._dna == Trait.OPTIMIZE_PERFORMANCE:
-                self.add_edge(to_node_name, from_node_name, **attributes)
-            else:
-                self._id_to_node[to_node_name].connect(edge)
+            self.add_edge(to_node_name, from_node_name, **attributes)
+            # FIXME: Handled differently now
 
-    def edges(self) -> Iterable:
+    def edges(self) -> Iterable[Edge]:
         return itertools.chain(*[n.edges for n in self])
 
     @property

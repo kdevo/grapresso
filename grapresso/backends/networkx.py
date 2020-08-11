@@ -1,4 +1,4 @@
-from typing import Iterable, Hashable, Any, Dict
+from typing import Iterable, Hashable, Any, Dict, Sized, Collection, Optional, Union
 
 import networkx as nx
 
@@ -10,14 +10,15 @@ from grapresso.components.node import Node
 class NxEdge(Edge):
     """NxEdge is a "virtual" edge:
     Basically it does not store any attributes except from_node and to_node references.
-    All properties are computed by using the NetworkX graph structure itself.
+    All properties are computed 'on demand' by using the NetworkX graph structure itself.
 
     """
 
-    def __init__(self, from_node: 'Node', to_node: 'Node', nx_edge: Dict[Hashable, Any]):
+    def __init__(self, from_node: 'Node', to_node: 'Node', edge_data):
+        super().__init__(from_node, to_node, **edge_data)
         self._from_node = from_node
         self._to_node = to_node
-        self._edge_data = nx_edge
+        self._edge_data = edge_data
 
     @property
     def cost(self) -> float:
@@ -43,21 +44,16 @@ class NxEdge(Edge):
     def from_node(self) -> 'Node':
         return self._from_node
 
-    def __getattr__(self, item):
-        val = self._edge_data[item]
-        self.__setattr__(item, val)
-        return val
-
     @property
     def data(self) -> Dict[Hashable, Any]:
         return self._edge_data
 
     def inverse(self) -> 'Edge':
-        return NxEdge(self.to_node, self.from_node, self._edge_data)
+        return NxEdge(self.to_node, self.from_node, **self._edge_data)
 
 
 class NxNode(Node):
-    def __init__(self, nx_graph: nx.DiGraph, name, balance=None, **kwargs):
+    def __init__(self, nx_graph: nx.DiGraph, name, **kwargs):
         self._nxg = nx_graph
         self._name = name
 
@@ -69,20 +65,28 @@ class NxNode(Node):
     def balance(self, balance):
         self._nxg.nodes[self]['balance'] = balance
 
+    @property
+    def data(self):
+        return self._nxg.nodes[self]
+
     def _build(self, name):
-        return NxNode(self._nxg, name, **self._nxg.nodes[name])
+        return NxNode(self._nxg, name)
 
     @property
     def neighbours(self) -> Iterable[Node]:
         neighbours = [self._build(n) for n in self._nxg.neighbors(self)]
         return neighbours
 
-    def edge(self, neighbour_node: 'Node') -> Edge:
-        data = self._nxg[self][neighbour_node]
-        return NxEdge(self, self._build(neighbour_node), data)
+    def edge(self, neighbour_node: Union['Node', Hashable]) -> Optional[NxEdge]:
+        data = self._nxg.get_edge_data(self, neighbour_node, default=None)
+        if data:
+            node = self._build(neighbour_node)
+            return NxEdge(self, node, data)
+        else:
+            return None
 
     @property
-    def edges(self) -> Iterable[Edge]:
+    def edges(self) -> Collection[Edge]:
         edges = [NxEdge(self, self._build(e[1]), e[2]) for e in self._nxg.edges(self.name, data=True)]
         return edges
 
@@ -92,6 +96,9 @@ class NxNode(Node):
 
     def sorted_edges(self) -> Iterable[Edge]:
         return sorted(self.edges, key=lambda e: e.cost)
+
+    def __len__(self):
+        return len(self._nxg[self].keys())
 
 
 class NetworkXBackend(DataBackend):
@@ -120,7 +127,7 @@ class NetworkXBackend(DataBackend):
         return self._nx
 
     def __getitem__(self, node_name: Hashable) -> Node:
-        return NxNode(self._nx, node_name, self._nx.nodes[node_name])
+        return NxNode(self._nx, node_name)
 
     def __contains__(self, node_name: Hashable) -> bool:
         return node_name in self._nx.nodes.keys()
@@ -168,12 +175,12 @@ class NetworkXBackend(DataBackend):
             'node_color': '#0097a7',
             'node_size': 700,
             'edge_label_pos': 0.42,
-            'edge_labels': {(e.from_node, e.to_node): e[edge_label_selector]
+            'edge_labels': {(e.from_node, e.to_node): round(e[edge_label_selector], 2)
                             for e in self.edges()} if edge_label_selector else None,
         }
 
         kw_dict = {**defaults, **kwargs}
-        pos = pos if pos else nx.spring_layout(self._nx)
+        pos = pos if pos else nx.spring_layout(self._nx, k=2 / len(self._nx))
         if kw_dict['edge_labels']:
             nx.draw_networkx_edge_labels(
                 graph, pos,
