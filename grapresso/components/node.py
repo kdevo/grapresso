@@ -1,9 +1,8 @@
-from typing import Iterable, Hashable, Collection, Dict, Any, Optional, Iterator, Union
+from typing import Iterable, Hashable, Dict, Any, Union
 
-from .edge import Edge
+import grapresso.components.edge as edge
 
 
-# TODO(kdevo): Refactor and merge with IndexedNode
 class Node:
     def __init__(self, name, **kwargs):
         """Constructs a node with a name."""
@@ -29,11 +28,11 @@ class Node:
         # if edge.from_node != self and edge.to_node != self:
         #     raise ValueError()
 
-    def edge(self, neighbour_node: Union['Node', Hashable]) -> Edge:
+    def edge(self, neighbour_node: Union['Node', Hashable]) -> 'edge.Edge':
         return self._adj.get(neighbour_node)
 
     def __str__(self):
-        return f"{self._name}"
+        return f"Node '{self._name}' with {len(list(self.edges))} edges"
 
     def __repr__(self):
         return f"{repr(self._name)}"
@@ -49,8 +48,8 @@ class Node:
 
     # FIXME(kdevo): When later specifying the Node as ABC, this should be removed and handled externally,
     #  though it boosts performance 'on-demand' (that is when an algorithm needs it), but algorithms should be clearly
-    #  divided from semantic data access which is the purpose of this class.
-    def sorted_edges(self) -> Iterable[Edge]:
+    #  divided from data access which is the purpose of this class.
+    def sorted_edges(self) -> Iterable['edge.Edge']:
         return sorted(self.edges, key=lambda e: e.cost)
 
     @property
@@ -58,7 +57,7 @@ class Node:
         return self._adj.keys()
 
     @property
-    def edges(self) -> Iterable[Edge]:
+    def edges(self) -> Iterable['edge.Edge']:
         return self._adj.values()
 
     @property
@@ -81,3 +80,7 @@ class Node:
 
     def __len__(self):
         return len(self._adj.keys())
+
+    # TODO(kdevo): Check why this causes stackoverflow while debugging:
+    # def __getattr__(self, item):
+    #     return self.data[item]

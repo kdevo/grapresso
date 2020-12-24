@@ -1,19 +1,21 @@
 from abc import ABC, abstractmethod
 from typing import Any, Hashable, Dict
 
+import grapresso.components.node as node
+
 
 class Connection(ABC):
     @abstractmethod
-    def __init__(self, to_node: 'Node', **kwargs: Dict[str, Any]):
+    def __init__(self, to_node: 'node.Node', **kwargs: Dict[str, Any]):
         pass
 
     @property
     @abstractmethod
-    def to_node(self) -> 'Node':
+    def to_node(self) -> 'node.Node':
         pass
 
     @property
-    def v(self) -> 'Node':
+    def v(self) -> 'node.Node':
         return self.to_node
 
     @property
@@ -73,6 +75,9 @@ class Connection(ABC):
 
     def __getattr__(self, item):
         return self.data[item]
+
+    # def __setattr__(self, key, value):
+    #     self.data[key] = value
 
 
 class Edge(Connection):

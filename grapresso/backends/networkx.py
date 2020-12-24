@@ -1,4 +1,4 @@
-from typing import Iterable, Hashable, Any, Dict, Sized, Collection, Optional, Union
+from typing import Iterable, Hashable, Any, Dict, Collection, Optional, Union
 
 import networkx as nx
 
@@ -11,7 +11,6 @@ class NxEdge(Edge):
     """NxEdge is a "virtual" edge:
     Basically it does not store any attributes except from_node and to_node references.
     All properties are computed 'on demand' by using the NetworkX graph structure itself.
-
     """
 
     def __init__(self, from_node: 'Node', to_node: 'Node', edge_data):
@@ -54,8 +53,11 @@ class NxEdge(Edge):
 
 class NxNode(Node):
     def __init__(self, nx_graph: nx.DiGraph, name, **kwargs):
+        super().__init__(name)
         self._nxg = nx_graph
         self._name = name
+        for k, v in kwargs:
+            self._nxg.nodes[self][k] = v
 
     @property
     def balance(self) -> float:
@@ -107,7 +109,7 @@ class NetworkXBackend(DataBackend):
     This enables you to use all algorithms NetworkX provides by accessing the underlying nx_graph.
 
     Warnings:
-        Still in Beta:
+        Experimental:
         - Could be better performance-wise:
             - Reconstructing the "node-local" edges takes time
             - Node data is partly stored duplicated
@@ -125,6 +127,10 @@ class NetworkXBackend(DataBackend):
     @property
     def nx_graph(self) -> nx.DiGraph:
         return self._nx
+
+    @nx_graph.setter
+    def nx_graph(self, nxg: nx.Graph):
+        self._nx = nxg
 
     def __getitem__(self, node_name: Hashable) -> Node:
         return NxNode(self._nx, node_name)

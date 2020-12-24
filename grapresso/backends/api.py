@@ -6,6 +6,7 @@ from grapresso.components.node import Node
 
 
 class DataBackend(ABC):
+    # TODO(kdevo): Refactor so that properties with O(1) are iterables, everything else a method
     @abstractmethod
     def __getitem__(self, node_name: Hashable) -> Node:
         """Get a node by node id.

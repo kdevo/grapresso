@@ -33,6 +33,30 @@ class DiGraph:
         return self._nodes_data[item]
 
     # TODO(kdevo): Untested
+    def __contains__(self, item):
+        try:
+            if isinstance(item, Edge):
+                return self[item.v].edge(item.u) is not None
+            elif isinstance(item, Node):
+                return self[item.name] is not None
+            else:
+                return self[item] is not None
+        except KeyError:
+            return False
+
+    # TODO(kdevo): Untested
+    @classmethod
+    def from_edges(cls, edges: Iterable[Edge], backend: DataBackend = None):
+        net = cls(backend)
+        for e in edges:
+            if e.u.name not in net:
+                net.add_node(e.u.name, **e.u.data)
+            if e.v.name not in net:
+                net.add_node(e.v.name, **e.u.data)
+            net.add_edge(e.u.name, e.v.name, **e.data)
+        return net
+
+    # TODO(kdevo): Untested
     def from_tuples(self, *args: Union[Hashable, Tuple]):
         for it in args:
             if not isinstance(it, tuple):
@@ -49,6 +73,12 @@ class DiGraph:
                 else:
                     self.add_edge(it[0], it[1])
         return self
+
+    def nodes(self):
+        return self.__iter__()
+
+    def node_names(self):
+        return self.backend.node_names()
 
     # TODO(kdevo): Untested
     def copy_to(self, graph):
@@ -142,7 +172,7 @@ class DiGraph:
                 on_visited_cb(current_node)
         return seen
 
-    def perform_bfs(self, start_node_name=None, on_visited_cb: callable = None):
+    def perform_bfs(self, start_node_name=None, on_visited_cb: Callable[[Node], None] = None):
         start_node_name = self[start_node_name]
         seen = set()
         to_visit = deque(maxlen=len(self._nodes_data))
