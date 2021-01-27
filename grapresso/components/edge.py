@@ -1,21 +1,21 @@
 from abc import ABC, abstractmethod
 from typing import Any, Hashable, Dict
 
-import grapresso.components.node as node
+from .node import Node
 
 
 class Connection(ABC):
     @abstractmethod
-    def __init__(self, to_node: 'node.Node', **kwargs: Dict[str, Any]):
+    def __init__(self, v: Node, **kwargs: Dict[str, Any]):
         pass
 
     @property
     @abstractmethod
-    def to_node(self) -> 'node.Node':
+    def to_node(self) -> Node:
         pass
 
     @property
-    def v(self) -> 'node.Node':
+    def v(self) -> Node:
         return self.to_node
 
     @property
@@ -74,27 +74,30 @@ class Connection(ABC):
         self.data[key] = value
 
     def __getattr__(self, item):
+        # Needed for properly unpickling (internal stuff happening):
+        if item.startswith('__') and item.endswith('__'):
+            raise AttributeError
         return self.data[item]
 
     # def __setattr__(self, key, value):
     #     self.data[key] = value
 
 
-class Edge(Connection):
+class Edge(Connection, ABC):
     @abstractmethod
-    def __init__(self, from_node: 'Node', to_node: 'Node', **kwargs: Dict[str, Any]):
-        super().__init__(to_node, **kwargs)
+    def __init__(self, u: Node, v: Node, **kwargs: Dict[str, Any]):
+        pass
 
     @property
-    def u(self) -> 'Node':
+    def u(self) -> Node:
         return self.from_node
 
     @property
     @abstractmethod
-    def from_node(self) -> 'Node':
+    def from_node(self) -> Node:
         pass
 
-    def opposite(self, of_node: 'Node') -> 'Node':
+    def opposing(self, of_node: Node) -> Node:
         return self.from_node if of_node == self.to_node else self.to_node
 
     def __str__(self):
@@ -110,3 +113,6 @@ class Edge(Connection):
     @property
     def key(self) -> Hashable:
         return self.from_node, self.to_node
+
+    # def __getstate__(self):
+    #     return self.u, self.v, self.data

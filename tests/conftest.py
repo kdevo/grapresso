@@ -1,9 +1,9 @@
 import pytest
 
-from grapresso.backends.memory import InMemoryBackend, Trait
+from grapresso.backends.memory import InMemoryBackend
 from grapresso.backends.networkx import NetworkXBackend
 
-ALL_BACKENDS = ('InMemory-OptimizeMemory', 'InMemory-OptimizePerformance', 'NetworkXBackend',)
+ALL_BACKENDS = ('InMemory-OptimizeMemory', 'NetworkXBackend',)
 ENABLED_BACKENDS = ALL_BACKENDS
 
 
@@ -11,10 +11,8 @@ ENABLED_BACKENDS = ALL_BACKENDS
 def create_backend(request, tmp_path):
     def _create_backend():
         return {
-            ALL_BACKENDS[0]: InMemoryBackend(Trait.OPTIMIZE_MEMORY),
-            ALL_BACKENDS[1]: InMemoryBackend(Trait.OPTIMIZE_PERFORMANCE),
-            ALL_BACKENDS[2]: NetworkXBackend(),
-            # 'PickleFile': PickleFileBackend(str(tmp_path))
+            ALL_BACKENDS[0]: InMemoryBackend(),
+            ALL_BACKENDS[1]: NetworkXBackend(),
         }[request.param]
 
     return _create_backend

@@ -6,9 +6,9 @@ import grapresso.components.edge as edge
 class Node:
     def __init__(self, name, **kwargs):
         """Constructs a node with a name."""
-        self._adj = {}
         self._name = name
         self._data = kwargs
+        self._adj = {}
 
     @property
     def name(self) -> Hashable:
@@ -24,7 +24,7 @@ class Node:
 
     def connect(self, edge):
         # TODO(kdevo): Refactor this to 'Connection' class
-        self._adj[edge.opposite(self)] = edge
+        self._adj[edge.opposing(self)] = edge
         # if edge.from_node != self and edge.to_node != self:
         #     raise ValueError()
 
@@ -35,7 +35,7 @@ class Node:
         return f"Node '{self._name}' with {len(list(self.edges))} edges"
 
     def __repr__(self):
-        return f"{repr(self._name)}"
+        return f"{self._name}"
 
     def __hash__(self):
         return hash(self._name)
@@ -71,7 +71,7 @@ class Node:
     def __getitem__(self, item):
         e = self.edge(item)
         if e is None:
-            raise KeyError(f"There is no neighbour {item} accessible from node {self}")
+            raise KeyError(f"There is no neighbour '{item}' accessible from node {self}")
         return e
 
     @property
@@ -81,6 +81,16 @@ class Node:
     def __len__(self):
         return len(self._adj.keys())
 
+    @property
+    def adj(self) -> Dict:
+        return self._adj
+
     # TODO(kdevo): Check why this causes stackoverflow while debugging:
     # def __getattr__(self, item):
     #     return self.data[item]
+
+    # def __setstate__(self, state):
+    #     self._name, self._data, self._adj = state
+    #
+    # def __getstate__(self):
+    #     return self._name, self._data, self._adj

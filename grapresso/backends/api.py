@@ -67,8 +67,8 @@ class DataBackend(ABC):
         pass
 
     @abstractmethod
-    def add_edge(self, from_node_name: Hashable,
-                 to_node_name: Hashable, symmetric: bool = False, **attributes):
+    def add_edge(self, u_name: Hashable,
+                 v_name: Hashable, symmetric: bool = False, **attributes):
         """Add an edge (from_node_name, to_node_name) = (x, y) with attributes to the graph.
         Per default, the edge is asymmetric/unidirectional (symmetric = False).
         For symmetric/bidirectional edges (x, y) = (y, x) implementations can consider to
@@ -78,15 +78,15 @@ class DataBackend(ABC):
             EdgeAlreadyExistsException: If the edge (from_node_name, to_node_name) already exists.
 
         Args:
-            from_node_name: The tail node name is the "start".
-            to_node_name: The head node name is the "end".
+            u_name: The tail node name is the "start".
+            v_name: The head node name is the "end".
             symmetric: Specify if the edge is symmetric/undirected or asymmetric/directed.
             **attributes: Attributes can e.g. contain the cost (special key: "cost") or other data.
         """
         pass
 
     @abstractmethod
-    def remove_edge(self, from_node_name: Hashable, to_node_name: Hashable):
+    def remove_edge(self, u_name: Hashable, v_name: Hashable):
         pass
 
     @abstractmethod

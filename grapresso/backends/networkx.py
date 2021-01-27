@@ -11,6 +11,8 @@ class NxEdge(Edge):
     """NxEdge is a "virtual" edge:
     Basically it does not store any attributes except from_node and to_node references.
     All properties are computed 'on demand' by using the NetworkX graph structure itself.
+    Warnings:
+        Although it works, it is highly imperformant
     """
 
     def __init__(self, from_node: 'Node', to_node: 'Node', edge_data):
@@ -81,11 +83,11 @@ class NxNode(Node):
 
     def edge(self, neighbour_node: Union['Node', Hashable]) -> Optional[NxEdge]:
         data = self._nxg.get_edge_data(self, neighbour_node, default=None)
-        if data:
+        if data is None:
+            return None
+        else:
             node = self._build(neighbour_node)
             return NxEdge(self, node, data)
-        else:
-            return None
 
     @property
     def edges(self) -> Collection[Edge]:
@@ -110,7 +112,7 @@ class NetworkXBackend(DataBackend):
 
     Warnings:
         Experimental:
-        - Could be better performance-wise:
+        - Performance penalties:
             - Reconstructing the "node-local" edges takes time
             - Node data is partly stored duplicated
         - NetworkX uses different concepts, so we need to use some (more or less) hacky tricks here
@@ -121,8 +123,8 @@ class NetworkXBackend(DataBackend):
         return self.nx_graph
 
     def __init__(self, directed=True):
-        self._nx = nx.DiGraph() if directed else nx.Graph()
         # TODO(kdevo): Try to use a node factory method here to increase performance
+        self._nx = nx.DiGraph() if directed else nx.Graph()
 
     @property
     def nx_graph(self) -> nx.DiGraph:

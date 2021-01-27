@@ -36,13 +36,21 @@ class DiGraph:
     def __contains__(self, item):
         try:
             if isinstance(item, Edge):
-                return self[item.v].edge(item.u) is not None
+                return self[item.v.name].edge(item.u.name) is not None
             elif isinstance(item, Node):
                 return self[item.name] is not None
             else:
                 return self[item] is not None
         except KeyError:
             return False
+
+    def union(self, other: 'DiGraph'):
+        for e in other.edges():
+            if e in self:
+                self[e.u.name, e.v.name].data = e.data
+            else:
+                self.add_edge(e.u.name, e.v.name, **e.data)
+        return self
 
     # TODO(kdevo): Untested
     @classmethod
@@ -80,10 +88,11 @@ class DiGraph:
     def node_names(self):
         return self.backend.node_names()
 
-    # TODO(kdevo): Untested
-    def copy_to(self, graph):
+    def copy_to(self, graph: 'DiGraph'):
+        for n in self:
+            graph.add_node(n.name)
         for e in self.edges():
-            graph.add_edge(e.from_node, e.to_node, **e.data)
+            graph.add_edge(e.from_node.name, e.to_node.name, **e.data)
         return graph
 
     def edges(self, from_node=None, to_node=None) -> Collection[Edge]:
@@ -147,6 +156,9 @@ class DiGraph:
 
     def remove_node(self, node_name):
         self._nodes_data.remove_node(node_name)
+
+    def remove_edge(self, from_node, to_node):
+        self._nodes_data.remove_edge(from_node, to_node)
 
     def edge(self, from_node_name, to_node_name) -> Optional[Edge]:
         try:

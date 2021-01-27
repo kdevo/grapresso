@@ -1,6 +1,6 @@
 import itertools
 from enum import Enum, unique
-from typing import Iterable, Any, Hashable, Dict
+from typing import Iterable, Any, Hashable, Dict, Tuple
 
 from .api import DataBackend, NodeAlreadyExistsError, EdgeAlreadyExistsError
 from grapresso.components.node import Node
@@ -8,18 +8,18 @@ from ..components.edge import Edge
 
 
 class InMemoryEdge(Edge):
-    def __init__(self, from_node: 'Node', to_node: 'Node', **data: Dict[str, Any]):
-        self._from_node = from_node
-        self._to_node = to_node
+    def __init__(self, u: 'Node', v: 'Node', **data: Dict[str, Any]):
         self._data = data
+        self._u = u
+        self._v = v
 
     @property
     def from_node(self) -> 'Node':
-        return self._from_node
+        return self._u
 
     @property
     def to_node(self) -> 'Node':
-        return self._to_node
+        return self._v
 
     @property
     def cost(self) -> float:
@@ -38,11 +38,17 @@ class InMemoryEdge(Edge):
         self._data['capacity'] = cap
 
     def inverse(self) -> 'Edge':
-        return InMemoryEdge(self._to_node, self._from_node, **self._data)
+        return InMemoryEdge(self._v, self._u, **self._data)
 
     @property
     def data(self) -> Dict[str, Any]:
         return self._data
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
 
 
 @unique
@@ -77,8 +83,8 @@ class InMemoryBackend(DataBackend):
     """
 
     def __init__(self, dna: Trait = Trait.OPTIMIZE_PERFORMANCE):
+        # FIXME(kdevo): Due to heavy refactoring, dna is not integrated anymore
         self._id_to_node = {}
-        self._dna = dna
 
     def __iter__(self):
         return self._id_to_node.values().__iter__()
@@ -103,14 +109,13 @@ class InMemoryBackend(DataBackend):
     def node_names(self):
         return self._id_to_node.keys()
 
-    def add_edge(self, from_node_name, to_node_name, symmetric: bool = False, **attributes):
-        if to_node_name in self._id_to_node[from_node_name].edges:
-            raise EdgeAlreadyExistsError(from_node_name, to_node_name)
-        edge = InMemoryEdge(self[from_node_name], self[to_node_name], **attributes)
-        self._id_to_node[from_node_name].connect(edge)
+    def add_edge(self, u, v, symmetric: bool = False, **attributes):
+        if v in self[u].edges:
+            raise EdgeAlreadyExistsError(u, v)
+        edge = InMemoryEdge(self[u], self[v], **attributes)
+        self._id_to_node[u].connect(edge)
         if symmetric:
-            self.add_edge(to_node_name, from_node_name, **attributes)
-            # FIXME: Handled differently now
+            self.add_edge(v, u, **attributes)
 
     def edges(self) -> Iterable[Edge]:
         return itertools.chain(*[n.edges for n in self])
@@ -119,11 +124,15 @@ class InMemoryBackend(DataBackend):
     def mst_alg_hint(self) -> str:
         return 'prim'
 
-    def remove_edge(self, from_node_name: Hashable, to_node_name: Hashable):
-        raise NotImplementedError(f"Remove is not yet implemented for {__name__}")
+    def remove_edge(self, u: Hashable, v: Hashable):
+        del self[u].adj[v]
+        # raise NotImplementedError(f"Remove is not yet implemented for {__name__}")
 
     def remove_node(self, node_name: Hashable):
-        raise NotImplementedError(f"Remove is not yet implemented for {__name__}")
+        for v in self:
+            if node_name in v.adj:
+                self.remove_edge(node_name, v)
+        del self._id_to_node[node_name]
 
     @property
     def costminflow_alg_hint(self) -> str:
@@ -132,3 +141,20 @@ class InMemoryBackend(DataBackend):
     @property
     def data(self) -> Any:
         return self._id_to_node
+
+    def __setstate__(self, state: Tuple[Dict, Dict]):
+        self._id_to_node = {}
+        node_data, flat_adj = state
+        for u, data in node_data.items():
+            self.add_node(u, **data)
+        for u, adj in flat_adj.items():
+            for v, data in adj:
+                self.add_edge(u, v, **data)
+
+    def __getstate__(self):
+        flat_adj = {}
+        node_data = {}
+        for n in self:
+            node_data[n.name] = n.data
+            flat_adj[n.name] = [(e.v.name, e.data) for e in n.edges]
+        return node_data, flat_adj

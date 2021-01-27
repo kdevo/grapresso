@@ -44,3 +44,33 @@ class TestBackend:
         edge.capacity = 20
         assert edge.capacity == 20
 
+    def test_removal(self, create_backend):
+        nodes = create_backend()
+
+        nodes.add_node('Berlin')
+        nodes.add_node('Aachen')
+        nodes.add_edge('Berlin', 'Aachen')
+
+        assert nodes['Berlin'].edge('Aachen') is not None
+        nodes.remove_edge('Berlin', 'Aachen')
+        assert nodes['Berlin'].edge('Aachen') is None
+
+    def test_pickle(self, create_backend, tmp_path):
+        nodes = create_backend()
+        nodes.add_node('a', test_node_attr=1)
+        nodes.add_node('b')
+        nodes.add_node('c')
+
+        nodes.add_edge('a', 'b', test={'nested': {True}})
+        nodes.add_edge('b', 'c')
+        nodes.add_edge('c', 'a')
+
+        import pickle
+        with open(tmp_path.joinpath('test_be.pkl'), 'wb') as f:
+            pickle.dump(nodes, f)
+        with tmp_path.joinpath('test_be.pkl').open('rb') as f:
+            unpickled_nodes = pickle.load(f)
+        assert list(unpickled_nodes.edges()) == list(nodes.edges())
+        assert unpickled_nodes['a'].data['test_node_attr'] == 1.
+        assert True in unpickled_nodes['a'].edge('b').data['test']['nested']
+
